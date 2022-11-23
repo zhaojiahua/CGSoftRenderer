@@ -1,0 +1,1 @@
+float AddFun(float inf1, float inf2);
