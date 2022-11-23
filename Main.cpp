@@ -1,8 +1,11 @@
 #include <Windows.h>
 #include "iostream"
 #include "Functions/AddFun.h"
+#include "application/application.h"
 
 #pragma comment(linker,"/subsystem:console /entry:wWinMainCRTStartup")
+
+#define ZApp ZApplication::GetInstance()
 
 int main()
 {
@@ -15,7 +18,11 @@ int APIENTRY wWinMain(
 	_In_ LPWSTR lpCmdLine,
 	_In_ int nCmdShow)
 {
-	std::cout << "hello windows" << std::endl;
+	if (!ZApp->InitZApplication(hInstance, 800, 600))return -1;
+	bool alive = true;
+	while (alive) {
+		alive = ZApp->peekMessage();
+	}
 	return 0;
 }
 
