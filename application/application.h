@@ -17,6 +17,10 @@ class ZApplication
 	int mWidth = 800;
 	int mHeight = 600;
 
+	int cxClient, cyClient;
+
+	RECT windowRect;		//初始化时窗口客户区的大小
+
 private:
 	BOOL ZCreateWindow(HINSTANCE hInstance);		//创建一个窗口实例
 	ATOM ZRegisterWindowClass(HINSTANCE hInstance);		//向Windows注册此窗口类
