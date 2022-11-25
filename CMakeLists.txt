@@ -13,6 +13,9 @@ add_subdirectory(Functions)
 #将application文件夹纳入编译系统
 add_subdirectory(application)
 
+#将GPU文件夹纳入编译系统
+add_subdirectory(GPU)
+
 #搜索所有的cpp文件,加入到SRCS变量中
 aux_source_directory(. SRCS)
 
@@ -22,5 +25,5 @@ add_executable(softRenderer "Main.cpp")
 #将Functions.lib链入softRenderer
 target_link_libraries(softRenderer Functions)
 
-#将application.lib链入softRenderer
-target_link_libraries(softRenderer applicationlib)
+#将application.lib GPU.lib链入softRenderer
+target_link_libraries(softRenderer applicationlib GPUlib)

@@ -1,5 +1,6 @@
 #include "application.h"
 #include "strsafe.h"
+#include "../GPU/gpu.h"
 
 #define DNUM		1000
 
@@ -65,20 +66,42 @@ bool ZApplication::InitZApplication(HINSTANCE hInstance, const uint32_t& width, 
 	mWidth = width;
 	mHeight = height;
 
+	ZRegisterWindowClass(hInstance);
+	if (!ZCreateWindow(hInstance)) return false;
+
 	///////////////获取显示器的分辨率
 	cxClient = GetSystemMetrics(SM_CXSCREEN);
 	cyClient = GetSystemMetrics(SM_CYSCREEN);
 
-	ZRegisterWindowClass(hInstance);
-	if (ZCreateWindow(hInstance)) return true;
-	return false;
+	///////////////初始化hdc画布
+	/*
+	dc device context设备上下文对象
+	每个窗口都有自己对应的设备区域映射 hdc
+	在内存中创建一个与本窗口hdc兼容的CanvasDC,用于绘制图像(将绘制完的完整图像一并拷贝之hdc)
+	*/
+	hdc = GetDC(mHwnd);
+	mCanvasDC = CreateCompatibleDC(hdc);
+	//创建位图之前要先构建位图的信息
+	BITMAPINFO bmpInfo{};
+	bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bmpInfo.bmiHeader.biWidth = mWidth;
+	bmpInfo.bmiHeader.biHeight = mHeight;
+	bmpInfo.bmiHeader.biPlanes = 1;
+	bmpInfo.bmiHeader.biBitCount = 32;
+	bmpInfo.bmiHeader.biCompression = BI_RGB;	//实际上存储的是BGRA
+	//创建于mhMem兼容的位图内存,并让mCanvasBuffer指向它(DIB表示这种与设备无关的位图文件)
+	mhBmp = CreateDIBSection(mCanvasDC, &bmpInfo, DIB_RGB_COLORS, (void**)&mCanvasBuffer, 0, 0);
+	//一个设备可以创建多个位图,选择表示激活位图,拷贝的位图
+	SelectObject(mCanvasDC, mhBmp);
+	memset(mCanvasBuffer,0,mWidth*mHeight*4);	//初始化的时候清空CanvasDc的buffer
+	Sgl->InitSurface(mWidth, mHeight, mCanvasBuffer);	//构造FrameBuffer
+	return true;
 }
 
 void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	RECT clientrect;
 	GetClientRect(hWnd, &clientrect);
-	HDC hdc;
 	PAINTSTRUCT ps;
 	static TCHAR szbuffer[128];
 	StringCchPrintf(szbuffer, 128, TEXT("resolution ratio: %d * %d px"), cxClient, cyClient);
@@ -94,91 +117,64 @@ void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	case WM_SIZE: {
 		cxClient = LOWORD(lParam);
 		cyClient = HIWORD(lParam);
-		bserPt[0].x = cxClient / 4;
-		bserPt[0].y = cyClient / 2;
-
-		bserPt[1].x = cxClient / 2;
-		bserPt[1].y = cyClient / 4;
-
-		bserPt[2].x = cxClient / 2;
-		bserPt[2].y = cyClient * 3 / 4;
-
-		bserPt[3].x = cxClient * 3 / 4;
-		bserPt[3].y = cyClient / 2;
 	}
 	case WM_LBUTTONDOWN: {
-		hdc = GetDC(hWnd);
 		StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("left mouse button down"));
 		TextOut(hdc, 0, 0, szbuffer, lstrlen(szbuffer));
-		SelectObject(hdc, GetStockObject(WHITE_PEN));
-		PolyBezier(hdc, bserPt, 4);
-		//MessageBox(hWnd,TEXT("WM_LBUTTONUP"),TEXT("clickUpWindow"),MB_OK);
-		bserPt[1].x = LOWORD(lParam);		//低位是鼠标的横坐标
-		bserPt[1].y = HIWORD(lParam);		//高位是鼠标的纵坐标
-		SelectObject(hdc, GetStockObject(BLACK_PEN));
-		PolyBezier(hdc, bserPt, 4);
 		ReleaseDC(hWnd, hdc);
-		return;
+		break;
 	}
 	case WM_RBUTTONDOWN: {
-		hdc = GetDC(hWnd);
 		StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("right mouse button down"));
 		TextOut(hdc, 0, 0, szbuffer, lstrlen(szbuffer));
-		SelectObject(hdc, GetStockObject(WHITE_PEN));
-		PolyBezier(hdc, bserPt, 4);
-		//MessageBox(hWnd,TEXT("WM_LBUTTONUP"),TEXT("clickUpWindow"),MB_OK);
-		bserPt[2].x = LOWORD(lParam);		//低位是鼠标的横坐标
-		bserPt[2].y = HIWORD(lParam);		//高位是鼠标的纵坐标
-		SelectObject(hdc, GetStockObject(BLACK_PEN));
-		PolyBezier(hdc, bserPt, 4);
 		ReleaseDC(hWnd, hdc);
-		return;
+		break;
 	}
 	case WM_PAINT: {
-		hdc = BeginPaint(hWnd, &ps);
-		//绘制文本
-		StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("hello renderer"));
-		TextOut(hdc, 0, 0, szbuffer, lstrlen(szbuffer));
-		/*for (int i = clientrect.left; i < clientrect.right; i++) {
-			SetPixel(hdc, i, 100, RGB(255, 0, 0));
-		}*/
-		//MoveToEx(hdc, 100, 100, nullptr);
-		//LineTo(hdc, 200, 300);		//画线默认起点是0,0
-		//LineTo(hdc, 300, 300);
-		/*//绘制网格
-		for (int i = clientrect.left; i < clientrect.right / 50; i++) {
-			MoveToEx(hdc, i * 50, clientrect.top, nullptr);
-			LineTo(hdc, i * 50, clientrect.bottom);
+		{
+			//hdc = BeginPaint(hWnd, &ps);
+			////绘制文本
+			//StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("hello renderer"));
+			//TextOut(hdc, 0, 0, szbuffer, lstrlen(szbuffer));
+			///*for (int i = clientrect.left; i < clientrect.right; i++) {
+			//	SetPixel(hdc, i, 100, RGB(255, 0, 0));
+			//}*/
+			////MoveToEx(hdc, 100, 100, nullptr);
+			////LineTo(hdc, 200, 300);		//画线默认起点是0,0
+			////LineTo(hdc, 300, 300);
+			///*//绘制网格
+			//for (int i = clientrect.left; i < clientrect.right / 50; i++) {
+			//	MoveToEx(hdc, i * 50, clientrect.top, nullptr);
+			//	LineTo(hdc, i * 50, clientrect.bottom);
+			//}
+			//for (int i = clientrect.top; i < clientrect.bottom / 50; i++) {
+			//	MoveToEx(hdc, clientrect.left, i * 50, nullptr);
+			//	LineTo(hdc, clientrect.right, i * 50 );
+			//}*/
+			////绘制多个多边形
+			//POINT points[] = { 50,20,20,60,80,60,50,20,70,20,100,60,130,20,70,20,150,20,150,60 };	//一共十个点
+			//DWORD pointsSeprate[] = { 4,4,2 };		//将这10个点分成3个组
+			//PolyPolyline(hdc, points, pointsSeprate,3);
+
+			////绘制sin曲线
+			//MoveToEx(hdc, 0, cyClient / 2, nullptr);
+			//LineTo(hdc, cxClient, cyClient / 2);
+			//MoveToEx(hdc, 0, cyClient / 2, nullptr);
+			//POINT sinPoints[DNUM];
+			//for (int i = 0; i < DNUM; i++) {
+			//	sinPoints[i].x = cxClient * i / DNUM;
+			//	sinPoints[i].y = cyClient * 0.5 * (sin(2 * PI * i / DNUM) + 1);
+			//}
+			//PolylineTo(hdc, sinPoints, DNUM);
+
+			////绘制贝塞尔曲线
+			//PolyBezier(hdc, bserPt, 4);
+
+			////绘制边框(即绘制边框又填充内容)
+			//Rectangle(hdc, 100, 100, 200, 300);
+			//Ellipse(hdc,100,100,200,300);
+			//EndPaint(hWnd, &ps);
 		}
-		for (int i = clientrect.top; i < clientrect.bottom / 50; i++) {
-			MoveToEx(hdc, clientrect.left, i * 50, nullptr);
-			LineTo(hdc, clientrect.right, i * 50 );
-		}*/
-		//绘制多个多边形
-		POINT points[] = { 50,20,20,60,80,60,50,20,70,20,100,60,130,20,70,20,150,20,150,60 };	//一共十个点
-		DWORD pointsSeprate[] = { 4,4,2 };		//将这10个点分成3个组
-		PolyPolyline(hdc, points, pointsSeprate,3);
-
-		//绘制sin曲线
-		MoveToEx(hdc, 0, cyClient / 2, nullptr);
-		LineTo(hdc, cxClient, cyClient / 2);
-		MoveToEx(hdc, 0, cyClient / 2, nullptr);
-		POINT sinPoints[DNUM];
-		for (int i = 0; i < DNUM; i++) {
-			sinPoints[i].x = cxClient * i / DNUM;
-			sinPoints[i].y = cyClient * 0.5 * (sin(2 * PI * i / DNUM) + 1);
-		}
-		PolylineTo(hdc, sinPoints, DNUM);
-
-		//绘制贝塞尔曲线
-		PolyBezier(hdc, bserPt, 4);
-
-		//绘制边框(即绘制边框又填充内容)
-		Rectangle(hdc, 100, 100, 200, 300);
-		Ellipse(hdc,100,100,200,300);
-
-
-		EndPaint(hWnd, &ps);
 		break;
 	}
 	case WM_DESTROY: {
@@ -200,3 +196,28 @@ bool ZApplication::peekMessage()
 	}
 	return mAlive;
 }
+
+void ZApplication::Render()
+{
+	Sgl->Clear();
+	//绘制一条横线
+	for (uint32_t i = 0; i < mWidth; ++i) {
+		Sgl->DrawPoint(i, 200, ZRGBA(0, 255, 255, 255));
+	}
+	//绘制雪花噪点
+	for (uint32_t i = 0; i < mWidth; i++)
+	{
+		for (uint32_t j = 0; j < mHeight; j++)
+		{
+			uint32_t temp = std::rand() % 255;
+			Sgl->DrawPoint(i, j, ZRGBA(temp, temp, temp, temp));
+		}
+	}
+	Show();
+}
+
+void ZApplication::Show()
+{
+	BitBlt(hdc, 0, 0, mWidth, mHeight, mCanvasDC, 0, 0, SRCCOPY);
+}
+

@@ -2,10 +2,9 @@
 #include "iostream"
 #include "Functions/AddFun.h"
 #include "application/application.h"
+#include "GPU/gpu.h"
 
 #pragma comment(linker,"/subsystem:console /entry:wWinMainCRTStartup")
-
-#define ZApp ZApplication::GetInstance()
 
 int main()
 {
@@ -19,9 +18,14 @@ int APIENTRY wWinMain(
 	_In_ int nCmdShow)
 {
 	if (!ZApp->InitZApplication(hInstance, 800, 600))return -1;
+	//Sgl->InitSurface(ZApp->GetWidth(), ZApp->GetHeight(), ZApp->GetCanvasBuffer());
+
 	bool alive = true;
 	while (alive) {
 		alive = ZApp->peekMessage();
+		ZApp->Render();
+		/*Render();
+		ZApp->Show();*/
 	}
 	return 0;
 }

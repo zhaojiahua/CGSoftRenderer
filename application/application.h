@@ -14,12 +14,17 @@ class ZApplication
 	WCHAR mWinClassName[100] = L"ZAPPWindow";
 	HWND mHwnd;		//实例窗口句柄
 
-	int mWidth = 800;
-	int mHeight = 600;
+	uint32_t mWidth = 800;
+	uint32_t mHeight = 600;
 
 	int cxClient, cyClient;
 
 	RECT windowRect;		//初始化时窗口客户区的大小
+
+	HDC hdc;		//当前窗口的主dc
+	HDC mCanvasDC;	//用于起背后绘图的dc,每绘制完一帧完整的图像之后,再将此数据完整拷贝到主dc中
+	HBITMAP mhBmp;	//用于CanvasDC内部生成的位图(bitmap)
+	void* mCanvasBuffer{ nullptr };	//mhBmp对应的内存起始位置指针(用来指向bitmap)
 
 private:
 	BOOL ZCreateWindow(HINSTANCE hInstance);		//创建一个窗口实例
@@ -39,4 +44,14 @@ public:
 
 	//每一帧/每一个循环都要调用,以捕获窗体的消息并分发
 	bool peekMessage();
+
+	//Render函数
+	void Render();
+
+	//拷贝canvasDc缓存数据到hdc即可显示图像 每一帧都调用
+	void Show();
+
+	uint32_t GetWidth() const { return mWidth; }
+	uint32_t GetHeight() const { return mHeight; }
+	void* GetCanvasBuffer() const { return mCanvasBuffer; }
 };
