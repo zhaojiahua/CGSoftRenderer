@@ -1,4 +1,5 @@
 ﻿#include "gpu.h"
+#include "raster.h"
 
 ZGPU* ZGPU::mZGPUInstance = nullptr;
 
@@ -26,11 +27,21 @@ void ZGPU::Clear()
 {
 	//并不是清除FrameBuffer,而是给FrameBuffer填充背景色
 	size_t pixelCount = mFrameBuffer->mHeight * mFrameBuffer->mWidth;
-	std::fill_n(mFrameBuffer->mColorBuffer, pixelCount, ZRGBA(10, 10, 10, 10));
+	std::fill_n(mFrameBuffer->mColorBuffer, pixelCount, ZRGBA(20, 20, 15, 15));
 }
 
 void ZGPU::DrawPoint(const uint32_t& inx, const uint32_t& iny, const ZRGBA& incolor)
 {
 	size_t inIndex = iny * mFrameBuffer->mWidth + inx;
 	mFrameBuffer->mColorBuffer[inIndex] = incolor;
+}
+
+void ZGPU::DrawLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint)
+{
+	std::vector<ZScrPoint> linePoints;
+	Raster::RasterizeLine_Brensenham(linePoints, startPoint, endPoint);		//Brensenham算法在屏幕上绘制线段
+	for (auto tPoint : linePoints)
+	{
+		DrawPoint(tPoint.X, tPoint.Y, tPoint.color);
+	}
 }

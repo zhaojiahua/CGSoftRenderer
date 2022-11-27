@@ -204,15 +204,30 @@ void ZApplication::Render()
 	for (uint32_t i = 0; i < mWidth; ++i) {
 		Sgl->DrawPoint(i, 200, ZRGBA(0, 255, 255, 255));
 	}
+	for (uint32_t i = 0; i < mWidth; ++i) {
+		Sgl->DrawPoint(i, 100, ZRGBA(0, 255, 255, 255));
+	}
+	for (uint32_t i = 0; i < mWidth; ++i) {
+		Sgl->DrawPoint(i, 590, ZRGBA(0, 255, 255, 255));
+	}
+	for (uint32_t i = 0; i < mHeight; ++i) {
+		Sgl->DrawPoint(100, i, ZRGBA(0, 255, 255, 255));
+	}
+	for (uint32_t i = 0; i < mHeight; ++i) {
+		Sgl->DrawPoint(500, i, ZRGBA(0, 255, 255, 255));
+	}
+
 	//绘制雪花噪点
-	for (uint32_t i = 0; i < mWidth; i++)
+	/*for (uint32_t i = 0; i < mWidth; i++)
 	{
 		for (uint32_t j = 0; j < mHeight; j++)
 		{
 			uint32_t temp = std::rand() % 255;
 			Sgl->DrawPoint(i, j, ZRGBA(temp, temp, temp, temp));
 		}
-	}
+	}*/
+	//Brensenham算法绘制直线
+	Sgl->DrawLine(ZScrPoint(150, 200), ZScrPoint(300, 599));
 	Show();
 }
 

@@ -20,7 +20,7 @@ add_subdirectory(GPU)
 aux_source_directory(. SRCS)
 
 #工程所有cpp文件编译链接,生成exe
-add_executable(softRenderer "Main.cpp")
+add_executable(softRenderer "Main.cpp" "global/base.cpp")
 
 #将Functions.lib链入softRenderer
 target_link_libraries(softRenderer Functions)

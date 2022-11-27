@@ -31,3 +31,14 @@ struct ZRGBA
 		zA = a;
 	}
 };
+
+//屏幕上的像素点
+struct ZScrPoint
+{
+	ZScrPoint() : X(0), Y(0), color(255, 255, 255, 255) {};
+	ZScrPoint(uint32_t inX, uint32_t inY, ZRGBA inColor = ZRGBA(255, 255, 255, 255)) :X(inX), Y(inY), color(inColor) {};
+	int32_t X;
+	int32_t Y;
+	ZRGBA color;
+	void operator = (ZScrPoint  inPoint);
+};
