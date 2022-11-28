@@ -2,7 +2,16 @@
 
 using namespace math;
 int main() {
-	ZVector2D<int> testV2d1(10, 15);
+
+	vec3f v3df1(1.0f, 2.0f, 3.0f);
+	vec3f v3df2(3.0f, 2.0f, 1.0f);
+	vec3i v3d2(3, 2, 1);
+	(3.5 * v3df1).print();
+	normalize(v3df1).print();
+	normalize(v3df2).print();
+	normalize(cross(v3df1, v3df2)).print();
+	(v3df1 * v3df2).print();
+	/*ZVector2D<int> testV2d1(10, 15);
 	ZVector2D<int> testV2d2(13, 20);
 	ZVector2D<int>testV2d3(testV2d1);
 	ZVector2D<int>testV2d4;
@@ -169,7 +178,7 @@ int main() {
 	testfV4d6 /= 10;
 	testfV4d6.print();
 	ZVector4D<float> testfV4d7 = testfV4d6 / 100;
-	testfV4d7.print();
+	testfV4d7.print();*/
 
 	return 0;
 }
