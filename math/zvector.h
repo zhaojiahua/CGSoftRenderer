@@ -1,7 +1,8 @@
+#pragma once
 #include <assert.h>
 #include <iostream>
 
-namespace math{
+namespace math {
 	template <typename T>
 	class ZVector3D;
 	template <typename T>
