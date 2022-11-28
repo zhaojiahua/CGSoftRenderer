@@ -13,4 +13,6 @@ public:
 	~Raster() {};
 
 	static void RasterizeLine_Brensenham(std::vector<ZScrPoint>& outScreenPoints, const ZScrPoint& startPoint, const ZScrPoint& endPoint);
+	// 差值计算中间点的属性
+	static void InterpolantLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint, ZScrPoint& targetPoint);
 };

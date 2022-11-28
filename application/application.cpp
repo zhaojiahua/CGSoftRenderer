@@ -132,48 +132,6 @@ void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	}
 	case WM_PAINT: {
 		{
-			//hdc = BeginPaint(hWnd, &ps);
-			////绘制文本
-			//StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("hello renderer"));
-			//TextOut(hdc, 0, 0, szbuffer, lstrlen(szbuffer));
-			///*for (int i = clientrect.left; i < clientrect.right; i++) {
-			//	SetPixel(hdc, i, 100, RGB(255, 0, 0));
-			//}*/
-			////MoveToEx(hdc, 100, 100, nullptr);
-			////LineTo(hdc, 200, 300);		//画线默认起点是0,0
-			////LineTo(hdc, 300, 300);
-			///*//绘制网格
-			//for (int i = clientrect.left; i < clientrect.right / 50; i++) {
-			//	MoveToEx(hdc, i * 50, clientrect.top, nullptr);
-			//	LineTo(hdc, i * 50, clientrect.bottom);
-			//}
-			//for (int i = clientrect.top; i < clientrect.bottom / 50; i++) {
-			//	MoveToEx(hdc, clientrect.left, i * 50, nullptr);
-			//	LineTo(hdc, clientrect.right, i * 50 );
-			//}*/
-			////绘制多个多边形
-			//POINT points[] = { 50,20,20,60,80,60,50,20,70,20,100,60,130,20,70,20,150,20,150,60 };	//一共十个点
-			//DWORD pointsSeprate[] = { 4,4,2 };		//将这10个点分成3个组
-			//PolyPolyline(hdc, points, pointsSeprate,3);
-
-			////绘制sin曲线
-			//MoveToEx(hdc, 0, cyClient / 2, nullptr);
-			//LineTo(hdc, cxClient, cyClient / 2);
-			//MoveToEx(hdc, 0, cyClient / 2, nullptr);
-			//POINT sinPoints[DNUM];
-			//for (int i = 0; i < DNUM; i++) {
-			//	sinPoints[i].x = cxClient * i / DNUM;
-			//	sinPoints[i].y = cyClient * 0.5 * (sin(2 * PI * i / DNUM) + 1);
-			//}
-			//PolylineTo(hdc, sinPoints, DNUM);
-
-			////绘制贝塞尔曲线
-			//PolyBezier(hdc, bserPt, 4);
-
-			////绘制边框(即绘制边框又填充内容)
-			//Rectangle(hdc, 100, 100, 200, 300);
-			//Ellipse(hdc,100,100,200,300);
-			//EndPaint(hWnd, &ps);
 		}
 		break;
 	}
@@ -200,9 +158,9 @@ bool ZApplication::peekMessage()
 void ZApplication::Render()
 {
 	Sgl->Clear();
-	//绘制一条横线
-	for (uint32_t i = 0; i < mWidth; ++i) {
-		Sgl->DrawPoint(i, 200, ZRGBA(0, 255, 255, 255));
+	////绘制一条横线
+	/*for (uint32_t i = 0; i < mWidth; ++i) {
+		Sgl->DrawPoint(i, 200, ZRGBA(0, 200, 255, 255));
 	}
 	for (uint32_t i = 0; i < mWidth; ++i) {
 		Sgl->DrawPoint(i, 100, ZRGBA(0, 255, 255, 255));
@@ -215,6 +173,9 @@ void ZApplication::Render()
 	}
 	for (uint32_t i = 0; i < mHeight; ++i) {
 		Sgl->DrawPoint(500, i, ZRGBA(0, 255, 255, 255));
+	}*/
+	for (uint32_t i = 0; i <= mHeight; ++i) {
+		Sgl->DrawPoint(500, i, ZRGBA(0, 255, 255, 255));
 	}
 
 	//绘制雪花噪点
@@ -226,8 +187,15 @@ void ZApplication::Render()
 			Sgl->DrawPoint(i, j, ZRGBA(temp, temp, temp, temp));
 		}
 	}*/
-	//Brensenham算法绘制直线
-	Sgl->DrawLine(ZScrPoint(150, 200), ZScrPoint(300, 599));
+	//Brensenham算法绘制直线(圆心和半径画一圈))
+	/*ZScrPoint centerPoint(400, 400, ZRGBA(255, 0, 0, 255));
+	int32_t raduis = 100;
+	for (uint32_t i = 0; i < 36; i++) {
+		double temprand = DEGTORAD(10 * i);
+		int32_t tx = cos(temprand) * raduis+ centerPoint.X;
+		int32_t ty = sin(temprand) * raduis + centerPoint.Y;
+		Sgl->DrawLine(centerPoint, ZScrPoint(tx, ty, ZRGBA(rand() % 256, rand() % 256, rand() % 256)));
+	}*/
 	Show();
 }
 

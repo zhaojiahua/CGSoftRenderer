@@ -30,9 +30,15 @@ void ZGPU::Clear()
 	std::fill_n(mFrameBuffer->mColorBuffer, pixelCount, ZRGBA(20, 20, 15, 15));
 }
 
-void ZGPU::DrawPoint(const uint32_t& inx, const uint32_t& iny, const ZRGBA& incolor)
+void ZGPU::DrawPoint(const int32_t& inx, const int32_t& iny, const ZRGBA& incolor)
 {
-	size_t inIndex = iny * mFrameBuffer->mWidth + inx;
+	//限制inx和iny的值在0到mFrameBuffer->mWidth和mFrameBuffer->mHeight之间
+	int32_t tempinx = max(0, inx);
+	tempinx = min(mFrameBuffer->mWidth-1, tempinx);
+	int32_t tempiny = max(0, iny);
+	tempiny= min(mFrameBuffer->mHeight-1, tempiny);
+
+	size_t inIndex = tempiny * mFrameBuffer->mWidth + tempinx;
 	mFrameBuffer->mColorBuffer[inIndex] = incolor;
 }
 

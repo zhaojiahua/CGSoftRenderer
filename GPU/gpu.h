@@ -26,7 +26,7 @@ public:
 	void Clear();
 
 	//传入像素位置和颜色并绘制
-	void DrawPoint(const uint32_t& inx, const uint32_t& iny, const ZRGBA& incolor);
+	void DrawPoint(const int32_t& inx, const int32_t& iny, const ZRGBA& incolor);
 
 	//传入两个像素点绘制直线
 	void DrawLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint);
