@@ -39,7 +39,16 @@ void ZGPU::DrawPoint(const int32_t& inx, const int32_t& iny, const ZRGBA& incolo
 	tempiny= min(mFrameBuffer->mHeight-1, tempiny);
 
 	size_t inIndex = tempiny * mFrameBuffer->mWidth + tempinx;
-	mFrameBuffer->mColorBuffer[inIndex] = incolor;
+	ZRGBA tempColor = incolor;
+	if (bEnableBlend) {
+		auto orgColor = mFrameBuffer->mColorBuffer[inIndex];
+		float weight = static_cast<float>(incolor.zA) / 255;
+		tempColor.zB = weight * incolor.zB + (1 - weight) * orgColor.zB;
+		tempColor.zG = weight * incolor.zG + (1 - weight) * orgColor.zG;
+		tempColor.zR = weight * incolor.zR + (1 - weight) * orgColor.zR;
+		tempColor.zA = weight * incolor.zA + (1 - weight) * orgColor.zA;
+	}
+	mFrameBuffer->mColorBuffer[inIndex] = tempColor;
 }
 
 void ZGPU::DrawLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint)

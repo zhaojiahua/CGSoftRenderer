@@ -16,6 +16,8 @@ class ZGPU
 	FrameBuffer* mFrameBuffer{ nullptr };
 
 public:
+	bool bEnableBlend = false;
+
 	ZGPU();
 	~ZGPU();
 	static ZGPU* GetZGPUInstance();	//单例模式,获取此类的实例

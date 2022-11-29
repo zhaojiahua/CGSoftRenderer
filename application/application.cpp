@@ -199,14 +199,17 @@ void ZApplication::Render()
 	}*/
 
 	//绘制一个渐变的三角形
-	/*ZScrPoint point1(100, 100, ZRGBA(255, 0, 0, 0));
+	ZScrPoint point1(100, 100, ZRGBA(255, 0, 0, 0));
 	ZScrPoint point2(600, 100, ZRGBA(0, 255, 0, 0));
 	ZScrPoint point3(350, 500, ZRGBA(0, 0, 255, 0));
-	Sgl->DrawTriangle(point1, point2, point3);*/
+	Sgl->DrawTriangle(point1, point2, point3);
 
 	//绘制图片
+	Sgl->bEnableBlend = true;
 	ZImage* image01 = ZImage::CreateZImage("assets/images/tx01.png");
+	ZImage* image02 = ZImage::CreateZImage("assets/images/opencv.png");
 	Sgl->DrawZImage(image01);
+	Sgl->DrawZImage(image02);
 	Show();
 }
 
