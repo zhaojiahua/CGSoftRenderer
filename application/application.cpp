@@ -36,7 +36,7 @@ ATOM ZApplication::ZRegisterWindowClass(HINSTANCE hInstance)
 {
 	WNDCLASSEXW wndClass;
 	wndClass.cbSize = sizeof(WNDCLASSEXW);
-	wndClass.style= CS_HREDRAW | CS_VREDRAW;	//水平/垂直大小发生变化重绘窗口
+	wndClass.style= CS_OWNDC;	//水平/垂直大小发生变化不重绘窗口
 	wndClass.lpfnWndProc = Wndproc;
 	wndClass.cbClsExtra = 0;
 	wndClass.cbWndExtra = 0;
@@ -103,7 +103,6 @@ void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 {
 	RECT clientrect;
 	GetClientRect(hWnd, &clientrect);
-	PAINTSTRUCT ps;
 	static TCHAR szbuffer[128];
 	StringCchPrintf(szbuffer, 128, TEXT("resolution ratio: %d * %d px"), cxClient, cyClient);
 	static int cxClient, cyClient;
