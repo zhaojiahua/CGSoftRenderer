@@ -74,6 +74,9 @@ bool ZApplication::InitZApplication(HINSTANCE hInstance, const uint32_t& width, 
 	cxClient = GetSystemMetrics(SM_CXSCREEN);
 	cyClient = GetSystemMetrics(SM_CYSCREEN);
 
+	//获取标准输出句柄
+	gOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
 	///////////////初始化hdc画布
 	/*
 	dc device context设备上下文对象
@@ -104,7 +107,6 @@ void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	RECT clientrect;
 	GetClientRect(hWnd, &clientrect);
 	static TCHAR szbuffer[128];
-	StringCchPrintf(szbuffer, 128, TEXT("resolution ratio: %d * %d px"), cxClient, cyClient);
 	static int cxClient, cyClient;
 	static POINT bserPt[4];	//这种公用的变量一定要放在全局区
 	switch (message)
@@ -117,17 +119,17 @@ void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	case WM_SIZE: {
 		cxClient = LOWORD(lParam);
 		cyClient = HIWORD(lParam);
+		StringCchPrintf(szbuffer, 128, TEXT("宽: %d ,高: %d\n"), cxClient, cyClient);
+		WriteConsole(gOutHandle, szbuffer, 128, nullptr, nullptr);
 	}
 	case WM_LBUTTONDOWN: {
-		StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("left mouse button down"));
-		TextOut(hdc, 0, 0, szbuffer, lstrlen(szbuffer));
-		ReleaseDC(hWnd, hdc);
+		StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("left mouse button down\n"));
+		WriteConsole(gOutHandle, szbuffer, 128, nullptr, nullptr);
 		break;
 	}
 	case WM_RBUTTONDOWN: {
-		StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("right mouse button down"));
-		TextOut(hdc, 0, 0, szbuffer, lstrlen(szbuffer));
-		ReleaseDC(hWnd, hdc);
+		StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("right mouse button down\n"));
+		WriteConsole(gOutHandle, szbuffer, 128, nullptr, nullptr);
 		break;
 	}
 	case WM_PAINT: {

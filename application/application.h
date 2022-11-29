@@ -32,6 +32,7 @@ private:
 
 public:
 	static ZApplication* GetInstance();		//获取单个实例
+	HANDLE gOutHandle;		//标准输出句柄,用于向DOS窗口输出调试信息
 
 	ZApplication();		//构造函数
 	~ZApplication();		//析构函数
