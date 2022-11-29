@@ -51,3 +51,22 @@ void ZGPU::DrawLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint)
 		DrawPoint(tPoint.X, tPoint.Y, tPoint.color);
 	}
 }
+
+void ZGPU::DrawTriangle(const ZScrPoint& p1, const ZScrPoint& p2, const ZScrPoint& p3)
+{
+	std::vector<ZScrPoint> trianglePoints;
+	Raster::RasterizeTriangle(trianglePoints, p1, p2, p3);
+	for (auto tPoint : trianglePoints)
+	{
+		DrawPoint(tPoint.X, tPoint.Y, tPoint.color);
+	}
+}
+
+void ZGPU::DrawZImage(const ZImage* inImg)
+{
+	for (uint32_t i = 0; i < inImg->mWidth; i++) {
+		for (uint32_t j = 0; j < inImg->mHeight; j++) {
+			DrawPoint(i, j, inImg->mData[j * inImg->mWidth + i]);
+		}
+	}
+}

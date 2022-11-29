@@ -2,6 +2,7 @@
 #include "../global/base.h"
 #include "frameBuffer.h"
 #include "../application/application.h"
+#include "../application/image.h"
 
 
 /*
@@ -30,5 +31,11 @@ public:
 
 	//传入两个像素点绘制直线
 	void DrawLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint);
+
+	//传入三个像素点绘制一个三角形
+	void DrawTriangle(const ZScrPoint& p1, const ZScrPoint& p2, const ZScrPoint& p3);
+
+	//传入ZImage数据绘制图像
+	void DrawZImage(const ZImage* inImg);
 
 };

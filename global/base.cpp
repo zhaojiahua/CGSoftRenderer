@@ -1,3 +1,4 @@
+#pragma once
 #include "base.h"
 
 void ZScrPoint::operator=(ZScrPoint inPoint)

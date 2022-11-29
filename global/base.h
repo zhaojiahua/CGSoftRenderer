@@ -36,7 +36,7 @@ struct ZRGBA
 struct ZScrPoint
 {
 	ZScrPoint() : X(0), Y(0), color(255, 255, 255, 255) {};
-	ZScrPoint(uint32_t inX, uint32_t inY, ZRGBA inColor = ZRGBA(255, 255, 255, 255)) :X(inX), Y(inY), color(inColor) {};
+	ZScrPoint(int32_t inX, int32_t inY, ZRGBA inColor = ZRGBA(255, 255, 255, 255)) :X(inX), Y(inY), color(inColor) {};
 	int32_t X;
 	int32_t Y;
 	ZRGBA color;

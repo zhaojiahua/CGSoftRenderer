@@ -1,3 +1,4 @@
+#pragma once
 #include "application.h"
 #include "strsafe.h"
 #include "../GPU/gpu.h"
@@ -173,10 +174,10 @@ void ZApplication::Render()
 	}
 	for (uint32_t i = 0; i < mHeight; ++i) {
 		Sgl->DrawPoint(500, i, ZRGBA(0, 255, 255, 255));
-	}*/
+	}
 	for (uint32_t i = 0; i <= mHeight; ++i) {
 		Sgl->DrawPoint(500, i, ZRGBA(0, 255, 255, 255));
-	}
+	}*/
 
 	//绘制雪花噪点
 	/*for (uint32_t i = 0; i < mWidth; i++)
@@ -196,6 +197,16 @@ void ZApplication::Render()
 		int32_t ty = sin(temprand) * raduis + centerPoint.Y;
 		Sgl->DrawLine(centerPoint, ZScrPoint(tx, ty, ZRGBA(rand() % 256, rand() % 256, rand() % 256)));
 	}*/
+
+	//绘制一个渐变的三角形
+	/*ZScrPoint point1(100, 100, ZRGBA(255, 0, 0, 0));
+	ZScrPoint point2(600, 100, ZRGBA(0, 255, 0, 0));
+	ZScrPoint point3(350, 500, ZRGBA(0, 0, 255, 0));
+	Sgl->DrawTriangle(point1, point2, point3);*/
+
+	//绘制图片
+	ZImage* image01 = ZImage::CreateZImage("assets/images/tx01.png");
+	Sgl->DrawZImage(image01);
 	Show();
 }
 
