@@ -40,4 +40,6 @@ public:
 	//传入ZImage数据绘制图像
 	void DrawZImage(const ZImage* inImg);
 
+	//传入ZImage数据和透明度绘制半透明图像
+	void DrawZImage(const ZImage* inImg, const uint32_t& ina);
 };

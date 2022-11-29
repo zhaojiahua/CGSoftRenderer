@@ -1,4 +1,5 @@
 ﻿#include "gpu.h"
+#include "gpu.h"
 #include "raster.h"
 
 ZGPU* ZGPU::mZGPUInstance = nullptr;
@@ -76,6 +77,18 @@ void ZGPU::DrawZImage(const ZImage* inImg)
 	for (uint32_t i = 0; i < inImg->mWidth; i++) {
 		for (uint32_t j = 0; j < inImg->mHeight; j++) {
 			DrawPoint(i, j, inImg->mData[j * inImg->mWidth + i]);
+		}
+	}
+}
+
+void ZGPU::DrawZImage(const ZImage* inImg, const uint32_t& ina)
+{
+	float talpha = static_cast<float>(ina) / 255;
+	for (uint32_t i = 0; i < inImg->mWidth; i++) {
+		for (uint32_t j = 0; j < inImg->mHeight; j++) {
+			ZRGBA tempC = inImg->mData[j * inImg->mWidth + i];
+			tempC.zA *= talpha;
+			DrawPoint(i, j, tempC);
 		}
 	}
 }
