@@ -18,4 +18,7 @@ public:
 	static void InterpolantLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint, ZScrPoint& targetPoint);
 	//差值计算三个点中间点的属性
 	static void InterpolantTriangle(const ZScrPoint& p1, const ZScrPoint& p2, const ZScrPoint& p3, ZScrPoint& tp);
+
+	//lerp函数(weight值越小越靠近color1,越大越靠近color2)
+	static ZRGBA LerpRGBA(const ZRGBA& inc1, const ZRGBA& inc2, float inweight);
 };

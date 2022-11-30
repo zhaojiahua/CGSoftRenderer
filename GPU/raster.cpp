@@ -27,8 +27,8 @@ void Raster::RasterizeLine_Brensenham(std::vector<ZScrPoint>& outScreenPoints, c
 	//2 保证y方向也是从小到大，如果需要翻转，必须记录
 	bool flipY = false;
 	if (start.Y > end.Y) {
-		start.Y *= -1.0f;
-		end.Y *= -1.0f;
+		start.Y *= -1;
+		end.Y *= -1;
 		flipY = true;
 	}
 
@@ -117,8 +117,6 @@ void Raster::RasterizeTriangle(std::vector<ZScrPoint>& outps, const ZScrPoint& p
 			}
 		}
 	}
-
-
 }
 
 void Raster::InterpolantLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint, ZScrPoint& targetPoint)
@@ -130,10 +128,13 @@ void Raster::InterpolantLine(const ZScrPoint& startPoint, const ZScrPoint& endPo
 	else if (startPoint.Y != endPoint.Y) {
 		weight = (float_t)(targetPoint.Y - startPoint.Y) / (float_t)(endPoint.Y - startPoint.Y);
 	}
+	//颜色属性差值
 	targetPoint.color.zR = static_cast<byte>  ((1 - weight) * startPoint.color.zR + weight * endPoint.color.zR);
 	targetPoint.color.zG = static_cast<byte> ((1 - weight) * startPoint.color.zG + weight * endPoint.color.zG);
 	targetPoint.color.zB = static_cast<byte> ((1 - weight) * startPoint.color.zB + weight * endPoint.color.zB);
 	targetPoint.color.zA = static_cast<byte> ((1 - weight) * startPoint.color.zA + weight * endPoint.color.zA);
+	//uv属性差值
+	targetPoint.uv = (1 - weight) * startPoint.uv + weight * endPoint.uv;
 }
 
 void Raster::InterpolantTriangle(const ZScrPoint& p1, const ZScrPoint& p2, const ZScrPoint& p3, ZScrPoint& tp)
@@ -151,16 +152,29 @@ void Raster::InterpolantTriangle(const ZScrPoint& p1, const ZScrPoint& p2, const
 
 	int32_t tri_area1 = std::abs(math::cross(tpp2, tpp3));
 	int32_t tri_area2 = std::abs(math::cross(tpp1, tpp3));
-	int32_t tri_area3 = std::abs(math::cross(tpp1, tpp2));
+	//int32_t tri_area3 = std::abs(math::cross(tpp1, tpp2));
 
 	//根据三角面积比例计算出三个点的权重值(涉及到除法的要引入浮点数据运算)
 	float weight1 = static_cast<float>(tri_area1) / tri_area;
 	float weight2 = static_cast<float>(tri_area2) / tri_area;
-	float weight3 = static_cast<float>(tri_area3) / tri_area;
+	float weight3 = 1.0f - weight1 - weight2;
 
-	//最后根据这个权重值差值计算出中间点的属性
+	//最后根据这个权重值差值计算出中间点的颜色属性
 	tp.color.zA = static_cast<byte>(weight1 * static_cast<float>(p1.color.zA) + weight2 * static_cast<float>(p2.color.zA) + weight3 * static_cast<float>(p3.color.zA));
 	tp.color.zR = static_cast<byte>(weight1 * static_cast<float>(p1.color.zR) + weight2 * static_cast<float>(p2.color.zR) + weight3 * static_cast<float>(p3.color.zR));
 	tp.color.zG = static_cast<byte>(weight1 * static_cast<float>(p1.color.zG) + weight2 * static_cast<float>(p2.color.zG) + weight3 * static_cast<float>(p3.color.zG));
 	tp.color.zB = static_cast<byte>(weight1 * static_cast<float>(p1.color.zB) + weight2 * static_cast<float>(p2.color.zB) + weight3 * static_cast<float>(p3.color.zB));
+
+	//最后根据这个权重值差值计算出中间点的UV属性
+	tp.uv = weight1 * (p1.uv) + weight2 * (p2.uv) + weight3 * (p3.uv);
+}
+
+ZRGBA Raster::LerpRGBA(const ZRGBA& inc1, const ZRGBA& inc2, float inweight)
+{
+	ZRGBA tempresult;
+	tempresult.zA = (1 - inweight) * inc1.zA + inweight * inc2.zA;
+	tempresult.zR = (1 - inweight) * inc1.zR + inweight * inc2.zR;
+	tempresult.zG = (1 - inweight) * inc1.zG + inweight * inc2.zG;
+	tempresult.zB = (1 - inweight) * inc1.zB + inweight * inc2.zB;
+	return tempresult;
 }

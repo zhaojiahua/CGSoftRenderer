@@ -44,7 +44,7 @@ namespace math {
 			X += inV.X; Y += inV.Y;
 			return *this;
 		}
-		ZVector2D<T> operator*(const T& inV) {
+		ZVector2D<T> operator*(T inV) const {
 			return ZVector2D(X * inV, Y * inV);
 		}
 		ZVector2D<T> operator*=(const T& inV) {

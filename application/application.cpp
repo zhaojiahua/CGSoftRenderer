@@ -24,8 +24,7 @@ BOOL ZApplication::ZCreateWindow(HINSTANCE hInstance)
 	windowRect.right = (long)mWidth;
 	windowRect.bottom = (long)mHeight;
 	AdjustWindowRectEx(&windowRect, dwStyle, FALSE, dwExStyle);
-
-	mHwnd = CreateWindowW(mWinClassName, (LPCWSTR)"ComputeGraphicLearning", dwStyle, 500, 500, windowRect.right, windowRect.bottom,nullptr, nullptr, hInstance, nullptr);	//调用windowAPI创建窗口
+	mHwnd = CreateWindowW(mWinClassName, (LPWCH)"ComputeGraphicLearning", dwStyle, 2400, 100, windowRect.right, windowRect.bottom,nullptr, nullptr, hInstance, nullptr);	//调用windowAPI创建窗口
 	if (!mHwnd)return FALSE;
 	ShowWindow(mHwnd, true);
 	UpdateWindow(mHwnd);
@@ -106,7 +105,7 @@ void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 {
 	RECT clientrect;
 	GetClientRect(hWnd, &clientrect);
-	static TCHAR szbuffer[128];
+	static TCHAR szbuffer[256];
 	static int cxClient, cyClient;
 	static POINT bserPt[4];	//这种公用的变量一定要放在全局区
 	switch (message)
@@ -119,17 +118,18 @@ void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	case WM_SIZE: {
 		cxClient = LOWORD(lParam);
 		cyClient = HIWORD(lParam);
-		StringCchPrintf(szbuffer, 128, TEXT("宽: %d ,高: %d\n"), cxClient, cyClient);
-		WriteConsole(gOutHandle, szbuffer, 128, nullptr, nullptr);
+		StringCchPrintf(szbuffer, 256, TEXT("width: %d ,height: %d\n"), cxClient, cyClient);
+		WriteConsole(gOutHandle, szbuffer, 256, nullptr, nullptr);
+		break;
 	}
 	case WM_LBUTTONDOWN: {
-		StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("left mouse button down\n"));
-		WriteConsole(gOutHandle, szbuffer, 128, nullptr, nullptr);
+		StringCchPrintf(szbuffer, 256, TEXT("left mouse button down\n"));
+		WriteConsole(gOutHandle, szbuffer, 256, nullptr, nullptr);
 		break;
 	}
 	case WM_RBUTTONDOWN: {
-		StringCchPrintf(szbuffer, lstrlen(szbuffer), TEXT("right mouse button down\n"));
-		WriteConsole(gOutHandle, szbuffer, 128, nullptr, nullptr);
+		StringCchPrintf(szbuffer, 256, TEXT("right mouse button down\n"));
+		WriteConsole(gOutHandle, szbuffer, 256, nullptr, nullptr);
 		break;
 	}
 	case WM_PAINT: {
@@ -155,63 +155,6 @@ bool ZApplication::peekMessage()
 		DispatchMessage(&msg);
 	}
 	return mAlive;
-}
-
-void ZApplication::Render()
-{
-	Sgl->Clear();
-	////绘制一条横线
-	/*for (uint32_t i = 0; i < mWidth; ++i) {
-		Sgl->DrawPoint(i, 200, ZRGBA(0, 200, 255, 255));
-	}
-	for (uint32_t i = 0; i < mWidth; ++i) {
-		Sgl->DrawPoint(i, 100, ZRGBA(0, 255, 255, 255));
-	}
-	for (uint32_t i = 0; i < mWidth; ++i) {
-		Sgl->DrawPoint(i, 590, ZRGBA(0, 255, 255, 255));
-	}
-	for (uint32_t i = 0; i < mHeight; ++i) {
-		Sgl->DrawPoint(100, i, ZRGBA(0, 255, 255, 255));
-	}
-	for (uint32_t i = 0; i < mHeight; ++i) {
-		Sgl->DrawPoint(500, i, ZRGBA(0, 255, 255, 255));
-	}
-	for (uint32_t i = 0; i <= mHeight; ++i) {
-		Sgl->DrawPoint(500, i, ZRGBA(0, 255, 255, 255));
-	}*/
-
-	//绘制雪花噪点
-	/*for (uint32_t i = 0; i < mWidth; i++)
-	{
-		for (uint32_t j = 0; j < mHeight; j++)
-		{
-			uint32_t temp = std::rand() % 255;
-			Sgl->DrawPoint(i, j, ZRGBA(temp, temp, temp, temp));
-		}
-	}*/
-	//Brensenham算法绘制直线(圆心和半径画一圈))
-	/*ZScrPoint centerPoint(400, 400, ZRGBA(255, 0, 0, 255));
-	int32_t raduis = 100;
-	for (uint32_t i = 0; i < 36; i++) {
-		double temprand = DEGTORAD(10 * i);
-		int32_t tx = cos(temprand) * raduis+ centerPoint.X;
-		int32_t ty = sin(temprand) * raduis + centerPoint.Y;
-		Sgl->DrawLine(centerPoint, ZScrPoint(tx, ty, ZRGBA(rand() % 256, rand() % 256, rand() % 256)));
-	}*/
-
-	//绘制一个渐变的三角形
-	ZScrPoint point1(100, 100, ZRGBA(255, 0, 0, 255));
-	ZScrPoint point2(600, 100, ZRGBA(0, 255, 0, 255));
-	ZScrPoint point3(350, 500, ZRGBA(0, 0, 255, 255));
-	Sgl->DrawTriangle(point1, point2, point3);
-
-	//绘制图片
-	Sgl->bEnableBlend = true;
-	ZImage* image01 = ZImage::CreateZImage("assets/images/tx01.png");
-	ZImage* image02 = ZImage::CreateZImage("assets/images/opencv.png");
-	Sgl->DrawZImage(image01);
-	Sgl->DrawZImage(image02, 150);
-	Show();
 }
 
 void ZApplication::Show()

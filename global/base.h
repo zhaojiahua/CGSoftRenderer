@@ -6,6 +6,7 @@
 #include <map>
 #include <cmath>
 #include <assert.h>	//添加断言的宏,若表达式为真则继续,若表达式为假则终止程序
+#include "../math/math.h"
 
 #define PI										3.14159265358979323					//定义圆周率的精度
 #define DEGTORAD(theta)				(0.01745329251994329*(theta))		//角度转弧度
@@ -35,10 +36,11 @@ struct ZRGBA
 //屏幕上的像素点
 struct ZScrPoint
 {
-	ZScrPoint() : X(0), Y(0), color(255, 255, 255, 255) {};
-	ZScrPoint(int32_t inX, int32_t inY, ZRGBA inColor = ZRGBA(255, 255, 255, 255)) :X(inX), Y(inY), color(inColor) {};
+	ZScrPoint() : X(0), Y(0), color(255, 255, 255, 255), uv(0.0f, 0.0f) {}
+	ZScrPoint(int32_t inX, int32_t inY, ZRGBA inColor = ZRGBA(255, 255, 255, 255), math::vec2f inuv = math::vec2f(0.0f, 0.0f)) :X(inX), Y(inY), color(inColor), uv(inuv) {}
 	int32_t X;
 	int32_t Y;
 	ZRGBA color;
+	math::vec2f uv;
 	void operator = (ZScrPoint  inPoint);
 };

@@ -46,9 +46,6 @@ public:
 	//每一帧/每一个循环都要调用,以捕获窗体的消息并分发
 	bool peekMessage();
 
-	//Render函数
-	void Render();
-
 	//拷贝canvasDc缓存数据到hdc即可显示图像 每一帧都调用
 	void Show();
 
