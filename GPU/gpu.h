@@ -20,10 +20,13 @@ class ZGPU
 	ZRGBA NearestSimple(const math::vec2f& inuv);
 	//双线性差值采样图片纹理
 	ZRGBA BilinearitySimple(const math::vec2f& inuv);
+	//check UV值
+	void CheckValue(float& inValue);
 
 public:
 	bool bEnableBlend = false;		//是否开启图像融合模式
 	bool bUseBilinearity = false;	//是否使用双线性差值采样纹理
+	uint8_t UVwrap = TEXTRUE_WRAP_REPEAT;	//uvwrap的方式
 
 	ZGPU();
 	~ZGPU();
@@ -52,6 +55,5 @@ public:
 
 	//传入ZImage数据和透明度绘制半透明图像
 	void DrawZImage(const ZImage* inImg, const uint32_t& ina);
-
 
 };

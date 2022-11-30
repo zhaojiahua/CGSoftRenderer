@@ -7,13 +7,25 @@
 
 #pragma comment(linker,"/subsystem:console /entry:wWinMainCRTStartup")
 
-//准备绘制三角的点
+//准备绘制三角的点和两张贴图
+ZImage* image01 = ZImage::CreateZImage("assets/images/tx02.png");
+ZImage* image02 = ZImage::CreateZImage("assets/images/opencv.png");
 ZScrPoint point1(100, 100, ZRGBA(255, 0, 0, 255), math::vec2f(0.0f, 0.0f));
 ZScrPoint point2(400, 100, ZRGBA(0, 255, 0, 255), math::vec2f(1.0f, 0.0f));
 ZScrPoint point3(250, 600, ZRGBA(0, 0, 255, 255), math::vec2f(0.5f, 1.0f));
 ZScrPoint bpoint1(400, 100, ZRGBA(255, 0, 0, 255), math::vec2f(0.0f, 0.0f));
 ZScrPoint bpoint2(600, 100, ZRGBA(0, 255, 0, 255), math::vec2f(1.0f, 0.0f));
 ZScrPoint bpoint3(500, 600, ZRGBA(0, 0, 255, 255), math::vec2f(0.5f, 1.0f));
+
+//改变UV值实现跑马灯的效果
+void ChangeUV(float uvSpeed) {
+	point1.uv.X += uvSpeed;
+	point2.uv.X += uvSpeed;
+	point3.uv.X += uvSpeed;
+	bpoint1.uv.Y += uvSpeed;
+	bpoint2.uv.Y += uvSpeed;
+	bpoint3.uv.Y += uvSpeed;
+}
 
 void Render() {
 	Sgl->Clear();
@@ -64,11 +76,11 @@ void Render() {
 
 	//绘制图片
 	Sgl->bEnableBlend = true;
-	ZImage* image01 = ZImage::CreateZImage("assets/images/tx02.png");
-	ZImage* image02 = ZImage::CreateZImage("assets/images/opencv.png");
 	Sgl->DrawZImage(image01);
 	Sgl->DrawZImage(image02, 150);
 
+	ChangeUV(0.05);
+	Sgl->UVwrap = TEXTRUE_WRAP_MIRROR;
 	//绘制带UV信息的三角形
 	Sgl->SetTextrue(image01);
 	Sgl->bUseBilinearity = false;

@@ -6,17 +6,24 @@ ZGPU* ZGPU::mZGPUInstance = nullptr;
 
 ZRGBA ZGPU::NearestSimple(const math::vec2f& inuv)
 {
-	int32_t tx = std::round(inuv.X * (textrue->mWidth - 1));
-	int32_t ty = std::round(inuv.Y * (textrue->mHeight - 1));
+	//查看UV的值是否在0-1之间,如果不是会根据uvwrap的方式处理uv
+	math::vec2f tempuv = inuv;
+	CheckValue(tempuv.X);
+	CheckValue(tempuv.Y);
+	int32_t tx = std::round(tempuv.X * (textrue->mWidth - 1));
+	int32_t ty = std::round(tempuv.Y * (textrue->mHeight - 1));
 	if (textrue->mData)	return textrue->mData[tx + ty * textrue->mWidth];
 	return ZRGBA();
 }
 
 ZRGBA ZGPU::BilinearitySimple(const math::vec2f& inuv)
 {
+	math::vec2f tempuv = inuv;
+	CheckValue(tempuv.X);
+	CheckValue(tempuv.Y);
 	//先根据这个点的四个临近像素点分别纵向插值和横向插值算出两个lerp值,再计算出这个像素点的最终颜色值
-	float tx = inuv.X * (textrue->mWidth - 1);
-	float ty = inuv.Y * (textrue->mHeight - 1);
+	float tx = tempuv.X * (textrue->mWidth - 1);
+	float ty = tempuv.Y * (textrue->mHeight - 1);
 
 	int floorx = std::floor(tx);
 	int floory = std::floor(ty);
@@ -35,6 +42,24 @@ ZRGBA ZGPU::BilinearitySimple(const math::vec2f& inuv)
 	ZRGBA rcolorH = Raster::LerpRGBA(brcolor, trcolor, weightV);
 
 	return Raster::LerpRGBA(lcolorH, rcolorH, weightH);
+}
+
+void ZGPU::CheckValue(float& inValue)
+{
+	if (inValue > 1.0f || inValue < 0.0f) {
+		inValue = FRACTION(inValue);
+		switch (UVwrap)
+		{
+		case TEXTRUE_WRAP_REPEAT:
+			inValue = FRACTION(1 + inValue);
+			break;
+		case TEXTRUE_WRAP_MIRROR:
+			inValue = 1.0f - FRACTION(1 + inValue);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 ZGPU::ZGPU(){}

@@ -44,3 +44,7 @@ struct ZScrPoint
 	math::vec2f uv;
 	void operator = (ZScrPoint  inPoint);
 };
+
+//当UV值超出1的边界时采用的采样的方式
+#define TEXTRUE_WRAP_REPEAT 0
+#define TEXTRUE_WRAP_MIRROR 1
