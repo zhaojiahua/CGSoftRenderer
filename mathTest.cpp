@@ -2,15 +2,26 @@
 
 using namespace math;
 int main() {
-
-	vec3f v3df1(1.0f, 2.0f, 3.0f);
+	Mat4f m01(1.0f);
+	m01.PrintM();
+	m01.Set(
+		10,15,10,10.2,
+		11.6,11,12.5,11,
+		15,16,17,12.8,
+		19,20,10.6,12.6
+		);
+	m01.PrintM();
+	Mat4f m01Iverse = Inverse(m01);
+	m01Iverse.PrintM();
+	(m01Iverse * m01).PrintM();
+	/*vec3f v3df1(1.0f, 2.0f, 3.0f);
 	vec3f v3df2(3.0f, 2.0f, 1.0f);
 	vec3i v3d2(3, 2, 1);
 	(3.5 * v3df1).print();
 	normalize(v3df1).print();
 	normalize(v3df2).print();
 	normalize(cross(v3df1, v3df2)).print();
-	(v3df1 * v3df2).print();
+	(v3df1 * v3df2).print();*/
 	/*ZVector2D<int> testV2d1(10, 15);
 	ZVector2D<int> testV2d2(13, 20);
 	ZVector2D<int>testV2d3(testV2d1);

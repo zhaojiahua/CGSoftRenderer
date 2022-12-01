@@ -192,7 +192,7 @@ namespace math {
 			return *this;
 		}
 		ZVector4D<T> operator+(const ZVector4D<T>& inV) {
-			return ZVector2D(X + inV.X, Y + inV.Y, Z + inV.Z, W + inV.W);
+			return ZVector4D(X + inV.X, Y + inV.Y, Z + inV.Z, W + inV.W);
 		}
 		ZVector4D<T> operator+=(const ZVector4D<T>& inV) {
 			X += inV.X; Y += inV.Y; Z += inV.Z; W = inV.W;

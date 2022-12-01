@@ -79,7 +79,7 @@ void Render() {
 	Sgl->DrawZImage(image01);
 	Sgl->DrawZImage(image02, 150);
 
-	ChangeUV(0.05);
+	ChangeUV(0.01);
 	Sgl->UVwrap = TEXTRUE_WRAP_MIRROR;
 	//绘制带UV信息的三角形
 	Sgl->SetTextrue(image01);
