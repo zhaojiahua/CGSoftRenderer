@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "zvector.h"
 #include "matrix.h"
+#include "../global/base.h"
+
 namespace math {
 	//标量*向量的运算符重载
 	template<typename T,typename S>
@@ -175,7 +177,7 @@ namespace math {
 
 		//求伴随矩阵
 		ZMatrix4X4<T> Amatrix(static_cast<T>(1));
-		Amatrix.PrintM();
+
 		//����ÿ�������2*2��������ʽ,�±������Ͻǵ����½�
 		T D_22_33 = src.Get(2, 2) * src.Get(3, 3) - src.Get(2, 3) * src.Get(3, 2);
 
@@ -214,22 +216,22 @@ namespace math {
 		col0.Y = -(src.Get(1, 0) * D_22_33 - src.Get(2, 0) * D_12_33 + src.Get(3, 0) * D_12_23);
 		col0.Z = src.Get(1, 0) * D_21_33 - src.Get(2, 0) * D_11_33 + src.Get(3, 0) * D_11_23;
 		col0.W = -(src.Get(1, 0) * D_21_32 - src.Get(2, 0) * D_11_32 + src.Get(3, 0) * D_11_22);
-		col0.print();
+
 		col1.X = -(src.Get(0, 1) * D_22_33 - src.Get(2, 1) * D_02_33 + src.Get(3, 1) * D_02_23);
 		col1.Y = src.Get(0, 0) * D_22_33 - src.Get(2, 0) * D_02_33 + src.Get(3, 0) * D_02_23;
 		col1.Z = -(src.Get(0, 0) * D_21_33 - src.Get(2, 0) * D_01_33 + src.Get(3, 0) * D_01_23);
 		col1.W = src.Get(0, 0) * D_21_32 - src.Get(2, 0) * D_01_32 + src.Get(3, 0) * D_01_22;
-		col1.print();
+
 		col2.X = src.Get(0, 1) * D_12_33 - src.Get(1, 1) * D_02_33 + src.Get(3, 1) * D_02_13;
 		col2.Y = -(src.Get(0, 0) * D_12_33 - src.Get(1, 0) * D_02_33 + src.Get(3, 0) * D_02_13);
 		col2.Z = src.Get(0, 0) * D_11_33 - src.Get(1, 0) * D_01_33 + src.Get(3, 0) * D_01_13;
 		col2.W = -(src.Get(0, 0) * D_11_32 - src.Get(1, 0) * D_01_32 + src.Get(3, 0) * D_01_12);
-		col2.print();
+
 		col3.X = -(src.Get(0, 1) * D_12_23 - src.Get(1, 1) * D_02_23 + src.Get(2, 1) * D_02_13);
 		col3.Y = src.Get(0, 0) * D_12_23 - src.Get(1, 0) * D_02_23 + src.Get(2, 0) * D_02_13;
 		col3.Z = -(src.Get(0, 0) * D_11_23 - src.Get(1, 0) * D_01_23 + src.Get(2, 0) * D_01_13);
 		col3.W = src.Get(0, 0) * D_11_22 - src.Get(1, 0) * D_01_22 + src.Get(2, 0) * D_01_12;
-		col3.print();
+
 		Amatrix.SetColum(0,col0);
 		Amatrix.SetColum(1,col1);
 		Amatrix.SetColum(2,col2);
@@ -246,16 +248,138 @@ namespace math {
 		Amatrix.PrintM();
 		return Amatrix * oneOverDeterminant;
 	}
+
+	/*
+	构造空间变换矩阵
+	scale translate rotate
+	第一个参数是当前模型坐标系原矩阵,返回变换后的矩阵
+	*/
+	template<typename T,typename V>
+	ZMatrix4X4<T> Scale(const ZMatrix4X4<T>& src, V x, V y, V z) {		//缩放矩阵
+		ZMatrix4X4<T> tempResult;
+		auto col0 = src.GetColum(0);
+		auto col1 = src.GetColum(1);
+		auto col2 = src.GetColum(2);
+		auto col3 = src.GetColum(3);
+		col0 *= x;
+		col1 *= y;
+		col2 *= z;
+		tempResult.SetColum(0, col0);
+		tempResult.SetColum(1, col1);
+		tempResult.SetColum(2, col2);
+		tempResult.SetColum(3, col3);
+		return tempResult;
+	}
+	template<typename T, typename V>
+	ZMatrix4X4<T> Translate(const ZMatrix4X4<T>& src, V x, V y, V z) {		//平移矩阵
+		ZMatrix4X4<T> tempResult(src);
+		auto col0 = src.GetColum(0);
+		auto col1 = src.GetColum(1);
+		auto col2 = src.GetColum(2);
+		auto col3 = src.GetColum(3);
+		
+		ZVector4D<T> dstcol3 = col0 * x + col1 * y + col2 * z + col3;
+		tempResult.SetColum(3, dstcol3);
+		return tempResult;
+	}
+	template<typename T, typename V>
+	ZMatrix4X4<T> Translate(const ZMatrix4X4<T>& src, const ZVector3D<V>& v) {		//平移矩阵
+		return Translate(src, v.X, v.Y, v.Z);
+	}
+	template<typename T>
+	ZMatrix4X4<T> Rotate(const ZMatrix4X4<T>& src, float angle, const ZVector3D<T>& v) {	//绕着一个轴向v旋转angle角度
+		T const c = std::cos(angle);	//注意要求angle是弧度制
+		T const s = std::sin(angle);
+
+		ZVector3D<T> axis = normalize(v);
+		ZVector3D<T> temp((T(1) - c) * axis);
+
+		//根据公式构建Rotator矩阵
+		ZMatrix4X4<T> Rotator;
+		Rotator.Set(0, 0, c + temp[0] * axis[0]);
+		Rotator.Set(1, 0, temp[0] * axis[1] + s * axis[2]);
+		Rotator.Set(2, 0, temp[0] * axis[2] - s * axis[1]);
+
+		Rotator.Set(0, 1, temp[1] * axis[0] - s * axis[2]);
+		Rotator.Set(1, 1, c + temp[1] * axis[1]);
+		Rotator.Set(2, 1, temp[1] * axis[2] + s * axis[0]);
+
+		Rotator.Set(0, 2, temp[2] * axis[0] + s * axis[1]);
+		Rotator.Set(1, 2, temp[2] * axis[1] - s * axis[0]);
+		Rotator.Set(2, 2, c + temp[2] * axis[2]);
+
+		//然后 src矩阵*Rotator矩阵
+		auto rcol0 = Rotator.GetColum(0);
+		auto rcol1 = Rotator.GetColum(1);
+		auto rcol2 = Rotator.GetColum(2);
+		auto rcol3 = Rotator.GetColum(3);
+
+		auto scol0 = src.GetColum(0);
+		auto scol1 = src.GetColum(1);
+		auto scol2 = src.GetColum(2);
+		auto scol3 = src.GetColum(3);
+
+		auto col0 = scol0 * rcol0[0] + scol1 * rcol0[1] + scol2 * rcol0[2];
+		auto col1 = scol0 * rcol1[0] + scol1 * rcol1[1] + scol2 * rcol1[2];
+		auto col2 = scol0 * rcol2[0] + scol1 * rcol2[1] + scol2 * rcol2[2];
+		auto col3 = scol3;
+
+		ZMatrix4X4<T> resultM;
+		resultM.SetColum(0, col0);
+		resultM.SetColum(1, col1);
+		resultM.SetColum(2, col2);
+		resultM.SetColum(3, col3);
+
+		return resultM;
+	}
+
+	//正交矩阵
+	template<typename T>
+	ZMatrix4X4<T> Orthographic(T left, T right, T bottom, T top, T near, T far) {
+		ZMatrix4X4<T> result(static_cast<T>(1));
+
+		result.Set(0, 0, static_cast<T>(2) / (right - left));
+		result.Set(0, 3, -(right + left) / (right - left));
+		result.Set(1, 1, static_cast<T>(2) / (top - bottom));
+		result.Set(1, 3, -(top + bottom) / (top - bottom));
+		result.Set(2, 2, -static_cast<T>(2) / (far - near));
+		result.Set(1, 3, -(far + near) / (far - near));
+
+		return result;
+	}
+
+	//透视矩阵
+	template<typename T>
+	ZMatrix4X4<T> Perspective(T fovy, T aspect, T n, T f) {
+		T const tanHalfFovy = std::tan(DEGTORAD(fovy / static_cast<T>(2)));
+
+		ZMatrix4X4<T> result(static_cast<T>(0));
+		result.Set(0, 0, static_cast<T>(1) / (aspect * tanHalfFovy));
+		result.Set(1, 1, static_cast<T>(1) / (tanHalfFovy));
+		result.Set(2, 2, -(f + n) / (f - n));
+		result.Set(2, 3, -static_cast<T>(2) * f * n / (f - n));
+		result.Set(3, 2, -static_cast<T>(1));
+
+		return result;
+	}
+
+	//屏幕像素矩阵
+	template<typename T>
+	ZMatrix4X4<T> screenMatrix(const uint32_t& width, const uint32_t& height) {
+		ZMatrix4X4<T> result(static_cast<T>(1));
+
+		//x
+		result.Set(0, 0, static_cast<T>(width) / static_cast<T>(2));
+		result.Set(0, 3, static_cast<T>(width) / static_cast<T>(2));
+
+		//y
+		result.Set(1, 1, static_cast<T>(height) / static_cast<T>(2));
+		result.Set(1, 3, static_cast<T>(height) / static_cast<T>(2));
+
+		//z
+		result.Set(2, 2, 0.5f);
+		result.Set(2, 3, 0.5f);
+
+		return result;
+	}
 }
-
-/*
-
-|m1_00,m1_04,m1_08,m1_12|		|m2_00,m2_04,m2_08,m2_12|	
-|											  |		|											  |
-|m1_01,m1_05,m1_09,m1_13|		|m2_01,m2_05,m2_09,m2_13|
-|											  |	    |											  |
-|m1_02,m1_06,m1_10,m1_14|		|m2_02,m2_06,m2_10,m2_14|
-|											  |		|											  |
-|m1_03,m1_07,m1_11,m1_15|		|m2_03,m2_07,m2_11,m2_15|
-
-*/
