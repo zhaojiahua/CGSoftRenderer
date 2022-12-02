@@ -58,7 +58,7 @@ namespace math {
 		}
 		void Set(const uint8_t& row, const uint8_t& col, T t) {
 			assert(row < 3 && col < 3);
-			m[row * 3 + col] = t;
+			m[col * 3 + row] = t;
 		}
 		void Set(
 			T t00, T t01, T t02, 
@@ -118,10 +118,10 @@ namespace math {
 		}
 		ZVector4D<T> operator*(const ZVector4D<T>& inV) {
 			return ZVector4D<T>(
-			inV.X * m[0] + inV.Y * m[4] + inV.Z * m[8] + inV.W * m[12];
-			inV.X * m[1] + inV.Y * m[5] + inV.Z * m[9] + inV.W * m[13];
-			inV.X * m[2] + inV.Y * m[6] + inV.Z * m[10] + inV.W * m[14];
-			inV.X * m[3] + inV.Y * m[7] + inV.Z * m[11] + inV.W * m[15];
+			inV.X * m[0] + inV.Y * m[4] + inV.Z * m[8] + inV.W * m[12],
+			inV.X * m[1] + inV.Y * m[5] + inV.Z * m[9] + inV.W * m[13],
+			inV.X * m[2] + inV.Y * m[6] + inV.Z * m[10] + inV.W * m[14],
+			inV.X * m[3] + inV.Y * m[7] + inV.Z * m[11] + inV.W * m[15]
 			);
 		}
 		T Get(const uint8_t& row, const uint8_t& col) const {
@@ -130,7 +130,7 @@ namespace math {
 		}
 		void Set(const uint8_t& row, const uint8_t& col, T t) {
 			assert(row < 4 && col < 4);
-			m[row * 4 + col] = t;
+			m[col * 4 + row] = t;
 		}
 		void Set(
 			T t00, T t01, T t02, T t03,

@@ -191,14 +191,14 @@ namespace math {
 			X = inV.X; Y = inV.Y; Z = inV.Z; W = inV.W;
 			return *this;
 		}
-		ZVector4D<T> operator+(const ZVector4D<T>& inV) {
+		ZVector4D<T> operator+(const ZVector4D<T>& inV) const {
 			return ZVector4D(X + inV.X, Y + inV.Y, Z + inV.Z, W + inV.W);
 		}
 		ZVector4D<T> operator+=(const ZVector4D<T>& inV) {
 			X += inV.X; Y += inV.Y; Z += inV.Z; W = inV.W;
 			return *this;
 		}
-		ZVector4D<T> operator*(const T& inV) const {
+		ZVector4D<T> operator*(T inV) const {
 			return ZVector4D(X * inV, Y * inV, Z * inV, W * inV);
 		}
 		ZVector4D<T> operator*=(const T& inV) {

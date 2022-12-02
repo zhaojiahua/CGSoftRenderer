@@ -245,7 +245,7 @@ namespace math {
 		assert(determinant != 0);
 
 		T oneOverDeterminant = static_cast<T>(1) / determinant;
-		Amatrix.PrintM();
+
 		return Amatrix * oneOverDeterminant;
 	}
 
@@ -273,13 +273,15 @@ namespace math {
 	template<typename T, typename V>
 	ZMatrix4X4<T> Translate(const ZMatrix4X4<T>& src, V x, V y, V z) {		//平移矩阵
 		ZMatrix4X4<T> tempResult(src);
-		auto col0 = src.GetColum(0);
-		auto col1 = src.GetColum(1);
-		auto col2 = src.GetColum(2);
-		auto col3 = src.GetColum(3);
-		
+		ZVector4D<T> col0 = src.GetColum(0);
+		ZVector4D<T> col1 = src.GetColum(1);
+		ZVector4D<T> col2 = src.GetColum(2);
+		ZVector4D<T> col3 = src.GetColum(3);
+
 		ZVector4D<T> dstcol3 = col0 * x + col1 * y + col2 * z + col3;
+
 		tempResult.SetColum(3, dstcol3);
+		
 		return tempResult;
 	}
 	template<typename T, typename V>
@@ -351,7 +353,7 @@ namespace math {
 	//透视矩阵
 	template<typename T>
 	ZMatrix4X4<T> Perspective(T fovy, T aspect, T n, T f) {
-		T const tanHalfFovy = std::tan(DEGTORAD(fovy / static_cast<T>(2)));
+		T tanHalfFovy = std::tan(0.01745329251994329 * (fovy * 0.5f));
 
 		ZMatrix4X4<T> result(static_cast<T>(0));
 		result.Set(0, 0, static_cast<T>(1) / (aspect * tanHalfFovy));
@@ -365,7 +367,7 @@ namespace math {
 
 	//屏幕像素矩阵
 	template<typename T>
-	ZMatrix4X4<T> screenMatrix(const uint32_t& width, const uint32_t& height) {
+	ZMatrix4X4<T> ScreenMatrix(const uint32_t& width, const uint32_t& height) {
 		ZMatrix4X4<T> result(static_cast<T>(1));
 
 		//x
