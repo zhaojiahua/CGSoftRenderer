@@ -4,20 +4,26 @@
 #include "Functions/AddFun.h"
 #include "application/application.h"
 #include "GPU/gpu.h"
+#include "GPU/dataStruct.h"
 
 #pragma comment(linker,"/subsystem:console /entry:wWinMainCRTStartup")
 
-
-
+VsOutPoint point1;
+VsOutPoint point2;
+VsOutPoint point3;
+VsOutPoint bpoint1;
+VsOutPoint bpoint2;
+VsOutPoint bpoint3;
+void SetPointUV() {
+	point1.mUV = math::vec2f(0.0f, 0.0f);
+	point2.mUV = math::vec2f(1.0f, 0.0f);
+	point3.mUV = math::vec2f(0.5f, 1.0f);
+}
+//(100, 100, ZRGBA(255, 0, 0, 255), math::vec2f(0.0f, 0.0f));(400, 100, ZRGBA(0, 255, 0, 255), math::vec2f(1.0f, 0.0f)); (250, 600, ZRGBA(0, 0, 255, 255), math::vec2f(0.5f, 1.0f));
+//  (400, 100, ZRGBA(255, 0, 0, 255), math::vec2f(0.0f, 0.0f)); (600, 100, ZRGBA(0, 255, 0, 255), math::vec2f(1.0f, 0.0f)); (500, 600, ZRGBA(0, 0, 255, 255), math::vec2f(0.5f, 1.0f));
 //准备绘制三角的点和两张贴图(准备工作)
 ZImage* image01 = ZImage::CreateZImage("assets/images/tx02.png");
 ZImage* image02 = ZImage::CreateZImage("assets/images/opencv.png");
-ZScrPoint point1(100, 100, ZRGBA(255, 0, 0, 255), math::vec2f(0.0f, 0.0f));
-ZScrPoint point2(400, 100, ZRGBA(0, 255, 0, 255), math::vec2f(1.0f, 0.0f));
-ZScrPoint point3(250, 600, ZRGBA(0, 0, 255, 255), math::vec2f(0.5f, 1.0f));
-ZScrPoint bpoint1(400, 100, ZRGBA(255, 0, 0, 255), math::vec2f(0.0f, 0.0f));
-ZScrPoint bpoint2(600, 100, ZRGBA(0, 255, 0, 255), math::vec2f(1.0f, 0.0f));
-ZScrPoint bpoint3(500, 600, ZRGBA(0, 0, 255, 255), math::vec2f(0.5f, 1.0f));
 
 math::vec4f ppos1(-1.5f, 0.0f, 0.0f, 1.0f);
 math::vec4f ppos2(1.5f, 0.0f, 0.0f, 1.0f);
@@ -30,6 +36,7 @@ math::Mat4f screenMatrix = math::ScreenMatrix<float>(ZApp->GetWidth(), ZApp->Get
 //transform模型(实际上就是对这三个点进行操作)
 float cameraPos = 5.0f;	//相机初始位置
 float angle = 0.0f;	//模型开始旋转的初始角度
+
 void transform() {
 	angle += 0.01f;	//让模型每帧旋转0.01f弧度
 	cameraPos += 0.01f;	//让相机每帧后退0.01单位
@@ -48,7 +55,7 @@ void transform() {
 	auto newppos1 = mvpMatrix * ppos1;
 	auto newppos2 = mvpMatrix * ppos2;
 	auto newppos3 = mvpMatrix * ppos3;
-	newppos3.print();
+	
 	////透视除法到NDC空间
 	newppos1 /= newppos1.W;
 	newppos2 /= newppos2.W;
@@ -61,27 +68,27 @@ void transform() {
 
 
 	//将屏幕空间位置信息传递给原始的三个点
-	point1.X = screenppos1.X;
-	point1.Y = screenppos1.Y;
+	point1.mPosition.X = screenppos1.X;
+	point1.mPosition.Y = screenppos1.Y;
 
-	point2.X = screenppos2.X;
-	point2.Y = screenppos2.Y;
+	point2.mPosition.X = screenppos2.X;
+	point2.mPosition.Y = screenppos2.Y;
 
-	point3.X = screenppos3.X;
-	point3.Y = screenppos3.Y;
+	point3.mPosition.X = screenppos3.X;
+	point3.mPosition.Y = screenppos3.Y;
 
 }
-
 
 //改变UV值实现跑马灯的效果
 void ChangeUV(float uvSpeed) {
-	point1.uv.X += uvSpeed;
-	point2.uv.X += uvSpeed;
-	point3.uv.X += uvSpeed;
-	bpoint1.uv.Y += uvSpeed;
-	bpoint2.uv.Y += uvSpeed;
-	bpoint3.uv.Y += uvSpeed;
+	point1.mUV.X += uvSpeed;
+	point2.mUV.X += uvSpeed;
+	point3.mUV.X += uvSpeed;
+	bpoint1.mUV.Y += uvSpeed;
+	bpoint2.mUV.Y += uvSpeed;
+	bpoint3.mUV.Y += uvSpeed;
 }
+
 
 void Render() {
 	Sgl->Clear();
@@ -134,7 +141,6 @@ void Render() {
 	Sgl->bEnableBlend = true;
 	Sgl->DrawZImage(image01);
 	Sgl->DrawZImage(image02, 150);
-
 	ChangeUV(0.01);
 	Sgl->UVwrap = TEXTRUE_WRAP_MIRROR;
 	//绘制带UV信息的三角形
@@ -164,7 +170,7 @@ int APIENTRY wWinMain(
 	//Sgl->InitSurface(ZApp->GetWidth(), ZApp->GetHeight(), ZApp->GetCanvasBuffer());
 
 	bool alive = true;
-	
+	SetPointUV();
 	while (alive) {
 		alive = ZApp->peekMessage();
 		Render();

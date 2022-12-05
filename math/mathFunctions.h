@@ -384,4 +384,40 @@ namespace math {
 
 		return result;
 	}
+
+
+	//lerp函数的系统化定义(统一风格,结果和第二值成正比和第一个值成反比)
+	static float Lerp(const float& inf1, const float& inf2, const float& weight) {
+		return (1 - weight) * inf1 + weight * inf2;
+	}
+	static vec2f Lerp(const vec2f& inf1, const vec2f& inf2, const float& weight) {
+		return (1 - weight) * inf1 + weight * inf2;
+	}
+	static vec3f Lerp(const vec3f& inf1, const vec3f& inf2, const float& weight) {
+		return (1 - weight) * inf1 + weight * inf2;
+	}
+	static vec4f Lerp(const vec4f& inf1, const vec4f& inf2, const float& weight) {
+		return (1 - weight) * inf1 + weight * inf2;
+	}
+	static ZRGBA Lerp(const ZRGBA& inf1, const ZRGBA& inf2, const float& weight) {
+		ZRGBA tempC;
+		tempC.zA = static_cast<byte>(Lerp(static_cast<float>(inf1.zA), static_cast<float>(inf2.zA), weight));
+		tempC.zR = static_cast<byte>(Lerp(static_cast<float>(inf1.zR), static_cast<float>(inf2.zR), weight));
+		tempC.zG = static_cast<byte>(Lerp(static_cast<float>(inf1.zG), static_cast<float>(inf2.zG), weight));
+		tempC.zB = static_cast<byte>(Lerp(static_cast<float>(inf1.zB), static_cast<float>(inf2.zB), weight));
+		return tempC;
+	}
+	//三角形重心差值算法
+	static float Lerp(const float& inf1, const float& inf2, const float& inf3, const float& weight1, const float& weight2, const float& weight3) {
+		return weight1 * inf1 + weight2 * inf2 + weight3 * inf3;
+	}
+	static vec2f Lerp(const vec2f& inf1, const vec2f& inf2, const vec2f& inf3, const float& weight1, const float& weight2, const float& weight3) {
+		return weight1 * inf1 + weight2 * inf2 + weight3 * inf3;
+	}
+	static vec3f Lerp(const vec3f& inf1, const vec3f& inf2, const vec3f& inf3, const float& weight1, const float& weight2, const float& weight3) {
+		return weight1 * inf1 + weight2 * inf2 + weight3 * inf3;
+	}
+	static vec4f Lerp(const vec4f& inf1, const vec4f& inf2, const vec4f& inf3, const float& weight1, const float& weight2, const float& weight3) {
+		return weight1 * inf1 + weight2 * inf2 + weight3 * inf3;	//vertex shader里面处理颜色差值可以用此函数
+	}
 }

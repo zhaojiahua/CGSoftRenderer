@@ -3,6 +3,8 @@
 #include "frameBuffer.h"
 #include "../application/application.h"
 #include "../application/image.h"
+#include "../math/math.h"
+#include "dataStruct.h"
 
 
 /*
@@ -42,13 +44,13 @@ public:
 	void DrawPoint(const int32_t& inx, const int32_t& iny, const ZRGBA& incolor);
 
 	//传入两个像素点绘制直线
-	void DrawLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint);
+	void DrawLine(const VsOutPoint& startPoint, const VsOutPoint& endPoint);
 
 	//传入纹理贴图
 	void SetTextrue(ZImage* inIma);
 
 	//传入三个像素点绘制一个三角形
-	void DrawTriangle(const ZScrPoint& p1, const ZScrPoint& p2, const ZScrPoint& p3);
+	void DrawTriangle(const VsOutPoint& p1, const VsOutPoint& p2, const VsOutPoint& p3);
 
 	//传入ZImage数据绘制图像
 	void DrawZImage(const ZImage* inImg);

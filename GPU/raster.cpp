@@ -2,7 +2,7 @@
 #include "raster.h"
 #include "../math/math.h"
 
-void Raster::RasterizeLine_Brensenham(std::vector<ZScrPoint>& outScreenPoints, const ZScrPoint& startPoint, const ZScrPoint& endPoint)
+void Raster::RasterizeLine_Brensenham(std::vector<VsOutPoint>& outScreenPoints, const VsOutPoint& startPoint, const VsOutPoint& endPoint)
 {
 	/*
 	首先要满足 0<斜率k<1且起始点位置在终止点的左侧
@@ -12,11 +12,11 @@ void Raster::RasterizeLine_Brensenham(std::vector<ZScrPoint>& outScreenPoints, c
 	endPoint.X>endPoint.Y
 	如果不满足就要创造满足的条件
 	*/
-	ZScrPoint start = startPoint;
-	ZScrPoint end = endPoint;
+	VsOutPoint start = startPoint;
+	VsOutPoint end = endPoint;
 
 	//1 保证x方向是从小到大的
-	if (start.X > end.X) {
+	if (start.mPosition.X > end.mPosition.X) {
 		auto tmp = start;
 		start = end;
 		end = tmp;
@@ -26,32 +26,32 @@ void Raster::RasterizeLine_Brensenham(std::vector<ZScrPoint>& outScreenPoints, c
 
 	//2 保证y方向也是从小到大，如果需要翻转，必须记录
 	bool flipY = false;
-	if (start.Y > end.Y) {
-		start.Y *= -1;
-		end.Y *= -1;
+	if (start.mPosition.Y > end.mPosition.Y) {
+		start.mPosition.Y *= -1;
+		end.mPosition.Y *= -1;
 		flipY = true;
 	}
 
 	//3 保证斜率在0-1之间，如果需要调整，必须记录
-	int32_t deltaX = end.X - start.X;
-	int32_t deltaY = end.Y - start.Y;
+	int32_t deltaX = end.mPosition.X - start.mPosition.X;
+	int32_t deltaY = end.mPosition.Y - start.mPosition.Y;
 
 	bool swapXY = false;
 	if (deltaX < deltaY) {
-		std::swap(start.X, start.Y);
-		std::swap(end.X, end.Y);
+		std::swap(start.mPosition.X, start.mPosition.Y);
+		std::swap(end.mPosition.X, end.mPosition.Y);
 		std::swap(deltaX, deltaY);
 		swapXY = true;
 	}
 
 	//4 brensenham
-	int32_t currentX = start.X;
-	int32_t currentY = start.Y;
+	int32_t currentX = start.mPosition.X;
+	int32_t currentY = start.mPosition.Y;
 
 	int32_t resultX = 0;
 	int32_t resultY = 0;
 
-	ZScrPoint currentPoint;
+	VsOutPoint currentPoint;
 	int32_t p = 2 * deltaY - deltaX;
 
 	for (int32_t i = 0; i < deltaX; ++i) {
@@ -76,8 +76,8 @@ void Raster::RasterizeLine_Brensenham(std::vector<ZScrPoint>& outScreenPoints, c
 		}
 
 		//产生新顶点
-		currentPoint.X = resultX;
-		currentPoint.Y = resultY;
+		currentPoint.mPosition.X = resultX;
+		currentPoint.mPosition.Y = resultY;
 
 		InterpolantLine(start, end, currentPoint);
 
@@ -85,23 +85,23 @@ void Raster::RasterizeLine_Brensenham(std::vector<ZScrPoint>& outScreenPoints, c
 	}
 }
 
-void Raster::RasterizeTriangle(std::vector<ZScrPoint>& outps, const ZScrPoint& p1, const ZScrPoint& p2, const ZScrPoint& p3)
+void Raster::RasterizeTriangle(std::vector<VsOutPoint>& outps, const VsOutPoint& p1, const VsOutPoint& p2, const VsOutPoint& p3)
 {
 	/*
 	根据二维向量的叉积判断像素点是否落在三角形的区域内
 	如果落在三角形内部然后用三角形重心插值法去求这个像素点的属性值
 	*/
 	//首先得到三角形的外接矩形
-	int32_t xmin = std::min(p1.X, std::min(p2.X, p3.X));
-	int32_t ymin = std::min(p1.Y, std::min(p2.Y, p3.Y));
-	int32_t xmax = std::max(p1.X, std::max(p2.X, p3.X));
-	int32_t ymax = std::max(p1.Y, std::max(p2.Y, p3.Y));
+	int32_t xmin = std::min(p1.mPosition.X, std::min(p2.mPosition.X, p3.mPosition.X));
+	int32_t ymin = std::min(p1.mPosition.Y, std::min(p2.mPosition.Y, p3.mPosition.Y));
+	int32_t xmax = std::max(p1.mPosition.X, std::max(p2.mPosition.X, p3.mPosition.X));
+	int32_t ymax = std::max(p1.mPosition.Y, std::max(p2.mPosition.Y, p3.mPosition.Y));
 	//然后遍历这个矩形内的所有像素点
 	for (int32_t tx = xmin; tx < xmax; ++tx) {
 		for (int32_t ty = ymin; ty < ymax; ++ty) {
-			math::vec2i tv1(p1.X - tx, p1.Y - ty);
-			math::vec2i tv2(p2.X - tx, p2.Y - ty);
-			math::vec2i tv3(p3.X - tx, p3.Y - ty);
+			math::vec2i tv1(p1.mPosition.X - tx, p1.mPosition.Y - ty);
+			math::vec2i tv2(p2.mPosition.X - tx, p2.mPosition.Y - ty);
+			math::vec2i tv3(p3.mPosition.X - tx, p3.mPosition.Y - ty);
 
 			float crossresult1 = math::cross(tv1, tv2);
 			float crossresult2 = math::cross(tv2, tv3);
@@ -111,7 +111,9 @@ void Raster::RasterizeTriangle(std::vector<ZScrPoint>& outps, const ZScrPoint& p
 			bool allpositive = crossresult1 > 0 && crossresult2 > 0 && crossresult3 > 0;
 
 			if (allnagtive || allpositive) {
-				ZScrPoint tempPoint(tx, ty);
+				VsOutPoint tempPoint;
+				tempPoint.mPosition.X = tx;
+				tempPoint.mPosition.Y = ty;
 				InterpolantTriangle(p1, p2, p3, tempPoint);
 				outps.push_back(tempPoint);
 			}
@@ -119,36 +121,33 @@ void Raster::RasterizeTriangle(std::vector<ZScrPoint>& outps, const ZScrPoint& p
 	}
 }
 
-void Raster::InterpolantLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint, ZScrPoint& targetPoint)
+void Raster::InterpolantLine(const VsOutPoint& startPoint, const VsOutPoint& endPoint, VsOutPoint& targetPoint)
 {
 	float_t weight = 1.0;
-	if (startPoint.X != endPoint.X) {
-		weight = (float_t)(targetPoint.X - startPoint.X) / (float_t)(endPoint.X - startPoint.X);
+	if (startPoint.mPosition.X != endPoint.mPosition.X) {
+		weight = (float_t)(targetPoint.mPosition.X - startPoint.mPosition.X) / (float_t)(endPoint.mPosition.X - startPoint.mPosition.X);
 	}
-	else if (startPoint.Y != endPoint.Y) {
-		weight = (float_t)(targetPoint.Y - startPoint.Y) / (float_t)(endPoint.Y - startPoint.Y);
+	else if (startPoint.mPosition.Y != endPoint.mPosition.Y) {
+		weight = (float_t)(targetPoint.mPosition.Y - startPoint.mPosition.Y) / (float_t)(endPoint.mPosition.Y - startPoint.mPosition.Y);
 	}
 	//颜色属性差值
-	targetPoint.color.zR = static_cast<byte>  ((1 - weight) * startPoint.color.zR + weight * endPoint.color.zR);
-	targetPoint.color.zG = static_cast<byte> ((1 - weight) * startPoint.color.zG + weight * endPoint.color.zG);
-	targetPoint.color.zB = static_cast<byte> ((1 - weight) * startPoint.color.zB + weight * endPoint.color.zB);
-	targetPoint.color.zA = static_cast<byte> ((1 - weight) * startPoint.color.zA + weight * endPoint.color.zA);
+	targetPoint.mColor = math::Lerp(startPoint.mColor, endPoint.mColor, weight);
 	//uv属性差值
-	targetPoint.uv = (1 - weight) * startPoint.uv + weight * endPoint.uv;
+	targetPoint.mUV = math::Lerp(startPoint.mUV, endPoint.mUV, weight);
 }
 
-void Raster::InterpolantTriangle(const ZScrPoint& p1, const ZScrPoint& p2, const ZScrPoint& p3, ZScrPoint& tp)
+void Raster::InterpolantTriangle(const VsOutPoint& p1, const VsOutPoint& p2, const VsOutPoint& p3, VsOutPoint& tp)
 {
 	//三角形重心差值法
 	//首先求出这个三角形的面积
-	math::vec2i p1p2(p2.X - p1.X, p2.Y - p1.Y);
-	math::vec2i p1p3(p3.X - p1.X, p3.Y - p1.Y);
+	math::vec2i p1p2(p2.mPosition.X - p1.mPosition.X, p2.mPosition.Y - p1.mPosition.Y);
+	math::vec2i p1p3(p3.mPosition.X - p1.mPosition.X, p3.mPosition.Y - p1.mPosition.Y);
 	int32_t tri_area = std::abs(math::cross(p1p2, p1p3));	//三角形面积的2倍(都是整形数据的运算)
 
 	//再求出三个小三角形面积
-	math::vec2i tpp1(p1.X - tp.X, p1.Y - tp.Y);
-	math::vec2i tpp2(p2.X - tp.X, p2.Y - tp.Y);
-	math::vec2i tpp3(p3.X - tp.X, p3.Y - tp.Y);
+	math::vec2i tpp1(p1.mPosition.X - tp.mPosition.X, p1.mPosition.Y - tp.mPosition.Y);
+	math::vec2i tpp2(p2.mPosition.X - tp.mPosition.X, p2.mPosition.Y - tp.mPosition.Y);
+	math::vec2i tpp3(p3.mPosition.X - tp.mPosition.X, p3.mPosition.Y - tp.mPosition.Y);
 
 	int32_t tri_area1 = std::abs(math::cross(tpp2, tpp3));
 	int32_t tri_area2 = std::abs(math::cross(tpp1, tpp3));
@@ -160,13 +159,9 @@ void Raster::InterpolantTriangle(const ZScrPoint& p1, const ZScrPoint& p2, const
 	float weight3 = 1.0f - weight1 - weight2;
 
 	//最后根据这个权重值差值计算出中间点的颜色属性
-	tp.color.zA = static_cast<byte>(weight1 * static_cast<float>(p1.color.zA) + weight2 * static_cast<float>(p2.color.zA) + weight3 * static_cast<float>(p3.color.zA));
-	tp.color.zR = static_cast<byte>(weight1 * static_cast<float>(p1.color.zR) + weight2 * static_cast<float>(p2.color.zR) + weight3 * static_cast<float>(p3.color.zR));
-	tp.color.zG = static_cast<byte>(weight1 * static_cast<float>(p1.color.zG) + weight2 * static_cast<float>(p2.color.zG) + weight3 * static_cast<float>(p3.color.zG));
-	tp.color.zB = static_cast<byte>(weight1 * static_cast<float>(p1.color.zB) + weight2 * static_cast<float>(p2.color.zB) + weight3 * static_cast<float>(p3.color.zB));
-
+	tp.mColor = math::Lerp(p1.mColor,p2.mColor,p3.mColor,weight1,weight2,weight3);
 	//最后根据这个权重值差值计算出中间点的UV属性
-	tp.uv = weight1 * (p1.uv) + weight2 * (p2.uv) + weight3 * (p3.uv);
+	tp.mUV = math::Lerp(p1.mUV, p2.mUV, p3.mUV, weight1, weight2, weight3);
 }
 
 ZRGBA Raster::LerpRGBA(const ZRGBA& inc1, const ZRGBA& inc2, float inweight)

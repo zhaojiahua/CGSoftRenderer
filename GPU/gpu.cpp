@@ -110,13 +110,13 @@ void ZGPU::DrawPoint(const int32_t& inx, const int32_t& iny, const ZRGBA& incolo
 	mFrameBuffer->mColorBuffer[inIndex] = tempColor;
 }
 
-void ZGPU::DrawLine(const ZScrPoint& startPoint, const ZScrPoint& endPoint)
+void ZGPU::DrawLine(const VsOutPoint& startPoint, const VsOutPoint& endPoint)
 {
-	std::vector<ZScrPoint> linePoints;
+	std::vector<VsOutPoint> linePoints;
 	Raster::RasterizeLine_Brensenham(linePoints, startPoint, endPoint);		//Brensenham算法在屏幕上绘制线段
 	for (const auto& tPoint : linePoints)
 	{
-		DrawPoint(tPoint.X, tPoint.Y, tPoint.color);
+		DrawPoint(tPoint.mPosition.X, tPoint.mPosition.Y, ZRGBA(255, 255, 255, 255));
 	}
 }
 
@@ -125,18 +125,18 @@ void ZGPU::SetTextrue(ZImage* inIma)
 	if (inIma) textrue = inIma;
 }
 
-void ZGPU::DrawTriangle(const ZScrPoint& p1, const ZScrPoint& p2, const ZScrPoint& p3)
+void ZGPU::DrawTriangle(const VsOutPoint& p1, const VsOutPoint& p2, const VsOutPoint& p3)
 {
-	std::vector<ZScrPoint> interPoints;
+	std::vector<VsOutPoint> interPoints;
 	Raster::RasterizeTriangle(interPoints, p1, p2, p3);
 	for (const auto& tPoint : interPoints)
 	{
 		//如果设置了贴图就从贴图采样颜色,否则就直接使用点的颜色
 		if (textrue) {
-			if (bUseBilinearity) DrawPoint(tPoint.X, tPoint.Y, BilinearitySimple(tPoint.uv));
-			else DrawPoint(tPoint.X, tPoint.Y, NearestSimple(tPoint.uv));
+			if (bUseBilinearity) DrawPoint(tPoint.mPosition.X, tPoint.mPosition.Y, BilinearitySimple(tPoint.mUV));
+			else DrawPoint(tPoint.mPosition.X, tPoint.mPosition.Y, NearestSimple(tPoint.mUV));
 		}
-		else DrawPoint(tPoint.X, tPoint.Y, tPoint.color);
+		else DrawPoint(tPoint.mPosition.X, tPoint.mPosition.Y, ZRGBA(255, 255, 255, 255));
 	}
 }
 

@@ -115,7 +115,7 @@ namespace math {
 			return *this;
 		}
 		ZVector3D<T> operator+(const ZVector3D<T>& inV) {
-			return ZVector2D(X + inV.X, Y + inV.Y, Z + inV.Z);
+			return ZVector3D(X + inV.X, Y + inV.Y, Z + inV.Z);
 		}
 		ZVector3D<T> operator+=(const ZVector3D<T>& inV) {
 			X += inV.X; Y += inV.Y; Z += inV.Z;
