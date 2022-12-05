@@ -6,6 +6,8 @@
 #include "../math/math.h"
 #include "dataStruct.h"
 
+class BufferObject;
+class VertexArrayObject;
 
 /*
 class  GPU
@@ -57,5 +59,19 @@ public:
 
 	//传入ZImage数据和透明度绘制半透明图像
 	void DrawZImage(const ZImage* inImg, const uint32_t& ina);
+
+	//渲染管线架构相关
+	uint32_t GenerateVertexBuffer();
+	void DeleteVertexBuffer(const uint32_t inBufferCounter);
+	uint32_t GenerateVertexArray();
+	void DeleteVertexArray(const uint32_t inBufferCounter);
+
+private:
+	//VBO相关/EBO也在其中
+	uint32_t mBufferCounter{ 0 };		//记录VBO的数量,同时也是当前Buffer的句柄
+	std::map<uint32_t, BufferObject*> mVBOMap;
+	//VAO相关
+	uint32_t mVAOCounter{ 0 };	//VAO的数量,同时也是当前Buffer的句柄
+	std::map<uint32_t, VertexArrayObject*> mVAOMap;
 
 };

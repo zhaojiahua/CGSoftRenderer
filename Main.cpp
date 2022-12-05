@@ -5,6 +5,8 @@
 #include "application/application.h"
 #include "GPU/gpu.h"
 #include "GPU/dataStruct.h"
+#include "GPU/bufferObject.h"
+#include "GPU/VAO.h"
 
 #pragma comment(linker,"/subsystem:console /entry:wWinMainCRTStartup")
 
@@ -19,8 +21,7 @@ void SetPointUV() {
 	point2.mUV = math::vec2f(1.0f, 0.0f);
 	point3.mUV = math::vec2f(0.5f, 1.0f);
 }
-//(100, 100, ZRGBA(255, 0, 0, 255), math::vec2f(0.0f, 0.0f));(400, 100, ZRGBA(0, 255, 0, 255), math::vec2f(1.0f, 0.0f)); (250, 600, ZRGBA(0, 0, 255, 255), math::vec2f(0.5f, 1.0f));
-//  (400, 100, ZRGBA(255, 0, 0, 255), math::vec2f(0.0f, 0.0f)); (600, 100, ZRGBA(0, 255, 0, 255), math::vec2f(1.0f, 0.0f)); (500, 600, ZRGBA(0, 0, 255, 255), math::vec2f(0.5f, 1.0f));
+
 //准备绘制三角的点和两张贴图(准备工作)
 ZImage* image01 = ZImage::CreateZImage("assets/images/tx02.png");
 ZImage* image02 = ZImage::CreateZImage("assets/images/opencv.png");
@@ -89,6 +90,16 @@ void ChangeUV(float uvSpeed) {
 	bpoint3.mUV.Y += uvSpeed;
 }
 
+/// /////////////////////////////
+uint32_t vbo = 0;
+uint32_t vao = 0;
+void Prepare() {
+	vbo = Sgl->GenerateVertexBuffer();
+	vao = Sgl->GenerateVertexArray();
+	Sleep(1000);
+	Sgl->DeleteVertexBuffer(vbo);
+	Sgl->DeleteVertexArray(vao);
+}
 
 void Render() {
 	Sgl->Clear();

@@ -1,6 +1,8 @@
 ﻿#include "gpu.h"
 #include "gpu.h"
 #include "raster.h"
+#include "bufferObject.h"
+#include "VAO.h"
 
 ZGPU* ZGPU::mZGPUInstance = nullptr;
 
@@ -159,4 +161,38 @@ void ZGPU::DrawZImage(const ZImage* inImg, const uint32_t& ina)
 			DrawPoint(i, j, tempC);
 		}
 	}
+}
+
+uint32_t ZGPU::GenerateVertexBuffer()
+{
+	mBufferCounter++;
+	mVBOMap.insert(std::make_pair(mBufferCounter, new BufferObject()));
+	return mBufferCounter;
+}
+
+void ZGPU::DeleteVertexBuffer(const uint32_t inBufferCounter)
+{
+	auto iter = mVBOMap.find(inBufferCounter);
+	if (iter != mVBOMap.end()) {
+		delete iter->second;
+	}
+	else return;
+	mVBOMap.erase(iter);
+}
+
+uint32_t ZGPU::GenerateVertexArray()
+{
+	mVAOCounter++;
+	mVAOMap.insert(std::make_pair(mVAOCounter, new VertexArrayObject()));
+	return mVAOCounter;
+}
+
+void ZGPU::DeleteVertexArray(const uint32_t inCounter)
+{
+	auto iter = mVAOMap.find(inCounter);
+	if (iter != mVAOMap.end()) {
+		delete iter->second;
+	}
+	else return;
+	mVAOMap.erase(iter);
 }
