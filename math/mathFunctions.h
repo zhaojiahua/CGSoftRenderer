@@ -418,6 +418,6 @@ namespace math {
 		return weight1 * inf1 + weight2 * inf2 + weight3 * inf3;
 	}
 	static vec4f Lerp(const vec4f& inf1, const vec4f& inf2, const vec4f& inf3, const float& weight1, const float& weight2, const float& weight3) {
-		return weight1 * inf1 + weight2 * inf2 + weight3 * inf3;	//vertex shader里面处理颜色差值可以用此函数
+		return weight1 * inf1 + weight2 * inf2 + weight3 * inf3;
 	}
 }

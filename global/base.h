@@ -37,3 +37,11 @@ struct ZRGBA
 //当UV值超出1的边界时采用的采样的方式
 #define TEXTRUE_WRAP_REPEAT 0
 #define TEXTRUE_WRAP_MIRROR 1
+
+//可供选择的Buffer类型
+#define VERTEXT_ARRAY_BUFFER 0	//与顶点属性相关的VBO
+#define ELEMENT_VERTEXT_ARRAY_BUFFER	1 //与顶点索引相关的EBO
+
+//提供顶点之后的光栅化模式(比如画线或者画面)
+#define DRAW_LINES 0
+#define DRAW_TRIANGLES 1

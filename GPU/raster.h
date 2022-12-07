@@ -12,7 +12,11 @@ class Raster
 public:
 	Raster() {};
 	~Raster() {};
+	//lerp函数(weight值越小越靠近color1,越大越靠近color2)
+	static ZRGBA LerpRGBA(const ZRGBA& inc1, const ZRGBA& inc2, float inweight);
 
+	static void Rasterize(std::vector<VsOutPoint>& outputPoints, const uint32_t& drawMode, const std::vector<VsOutPoint>& invsPoints);
+private:
 	static void RasterizeLine_Brensenham(std::vector<VsOutPoint>& outScreenPoints, const VsOutPoint& startPoint, const VsOutPoint& endPoint);
 	static void RasterizeTriangle(std::vector<VsOutPoint>& outps, const VsOutPoint& p1, const VsOutPoint& p2, const VsOutPoint& p3);
 	// 差值计算两点中间点的属性
@@ -20,6 +24,5 @@ public:
 	//差值计算三个点中间点的属性
 	static void InterpolantTriangle(const VsOutPoint& p1, const VsOutPoint& p2, const VsOutPoint& p3, VsOutPoint& tp);
 
-	//lerp函数(weight值越小越靠近color1,越大越靠近color2)
-	static ZRGBA LerpRGBA(const ZRGBA& inc1, const ZRGBA& inc2, float inweight);
+
 };

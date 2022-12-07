@@ -5,10 +5,10 @@
 //VAO数据结构,用来存储vertexBuffer的存储信息的描述
 struct  BindingDescription
 {
-	uint32_t mVBOID{ 0 };	//相应的VertexBuffer的内存地址
-	size_t mItemSize{ 0 };	//每个元素所占的空间字节大小
-	size_t mStride{ 0 };	//每个顶点包含元素的个数
-	size_t mOffset{ 0 };	//相应属性所在该顶点内存位置中的偏移
+	uint32_t mVBOID{ 0 };	//相应的VertexBuffer的内存地址句柄
+	size_t mItemSize{ 0 };	//组成某个属性的数据量(比如UV属性由2个数据组成)
+	size_t mStride{ 0 };	//每个顶点其各种属性综合所占的空间大小(单位是字节)
+	size_t mOffset{ 0 };	//相应属性所在该顶点内存位置中的位置偏移(单位是字节)
 };
 
 //vertex shader处理的顶点数据结构(包含顶点的世界空间位置,线性空间颜色,UV等)

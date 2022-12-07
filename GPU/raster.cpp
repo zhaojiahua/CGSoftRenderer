@@ -109,7 +109,7 @@ void Raster::RasterizeTriangle(std::vector<VsOutPoint>& outps, const VsOutPoint&
 
 			bool allnagtive = crossresult1 < 0 && crossresult2 < 0 && crossresult3 < 0;
 			bool allpositive = crossresult1 > 0 && crossresult2 > 0 && crossresult3 > 0;
-
+			
 			if (allnagtive || allpositive) {
 				VsOutPoint tempPoint;
 				tempPoint.mPosition.X = tx;
@@ -172,4 +172,18 @@ ZRGBA Raster::LerpRGBA(const ZRGBA& inc1, const ZRGBA& inc2, float inweight)
 	tempresult.zG = (1 - inweight) * inc1.zG + inweight * inc2.zG;
 	tempresult.zB = (1 - inweight) * inc1.zB + inweight * inc2.zB;
 	return tempresult;
+}
+
+void Raster::Rasterize(std::vector<VsOutPoint>& outputPoints, const uint32_t& drawMode, const std::vector<VsOutPoint>& invsPoints)
+{
+	if (drawMode == DRAW_LINES) {
+		for (uint32_t i = 0; i < invsPoints.size(); i+=2) {
+			RasterizeLine_Brensenham(outputPoints, invsPoints[i], invsPoints[i + 1]);
+		}
+	}
+	if (drawMode == DRAW_TRIANGLES) {
+		for (uint32_t i = 0; i < invsPoints.size(); i += 3) {
+			RasterizeTriangle(outputPoints, invsPoints[i], invsPoints[i + 1], invsPoints[i + 2]);
+		}
+	}
 }

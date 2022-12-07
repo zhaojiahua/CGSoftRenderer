@@ -3,6 +3,7 @@
 #include "raster.h"
 #include "bufferObject.h"
 #include "VAO.h"
+#include "clipper.h"
 
 ZGPU* ZGPU::mZGPUInstance = nullptr;
 
@@ -82,6 +83,7 @@ ZGPU* ZGPU::GetZGPUInstance()
 void ZGPU::InitSurface(const uint32_t& inWidth, const uint32_t& inHeight, void* bufferPtr)
 {
 	mFrameBuffer = new FrameBuffer(inWidth, inHeight, bufferPtr);		//这个初始化其实就是开辟一块内存给FrameBuffer使用
+	mScreenMatrix = math::ScreenMatrix<float>(inWidth - 1, inHeight - 1);
 }
 
 void ZGPU::Clear()
@@ -115,11 +117,11 @@ void ZGPU::DrawPoint(const int32_t& inx, const int32_t& iny, const ZRGBA& incolo
 void ZGPU::DrawLine(const VsOutPoint& startPoint, const VsOutPoint& endPoint)
 {
 	std::vector<VsOutPoint> linePoints;
-	Raster::RasterizeLine_Brensenham(linePoints, startPoint, endPoint);		//Brensenham算法在屏幕上绘制线段
-	for (const auto& tPoint : linePoints)
-	{
-		DrawPoint(tPoint.mPosition.X, tPoint.mPosition.Y, ZRGBA(255, 255, 255, 255));
-	}
+	std::vector<VsOutPoint> inPoints;
+	inPoints.push_back(startPoint);
+	inPoints.push_back(endPoint);
+	Raster::Rasterize(linePoints, DRAW_LINES, inPoints);		//Brensenham算法在屏幕上绘制线段
+	
 }
 
 void ZGPU::SetTextrue(ZImage* inIma)
@@ -130,16 +132,12 @@ void ZGPU::SetTextrue(ZImage* inIma)
 void ZGPU::DrawTriangle(const VsOutPoint& p1, const VsOutPoint& p2, const VsOutPoint& p3)
 {
 	std::vector<VsOutPoint> interPoints;
-	Raster::RasterizeTriangle(interPoints, p1, p2, p3);
-	for (const auto& tPoint : interPoints)
-	{
-		//如果设置了贴图就从贴图采样颜色,否则就直接使用点的颜色
-		if (textrue) {
-			if (bUseBilinearity) DrawPoint(tPoint.mPosition.X, tPoint.mPosition.Y, BilinearitySimple(tPoint.mUV));
-			else DrawPoint(tPoint.mPosition.X, tPoint.mPosition.Y, NearestSimple(tPoint.mUV));
-		}
-		else DrawPoint(tPoint.mPosition.X, tPoint.mPosition.Y, ZRGBA(255, 255, 255, 255));
-	}
+	std::vector<VsOutPoint> inPoints;
+	inPoints.push_back(p1);
+	inPoints.push_back(p2);
+	inPoints.push_back(p3);
+	Raster::Rasterize(interPoints, DRAW_TRIANGLES, inPoints);
+	
 }
 
 void ZGPU::DrawZImage(const ZImage* inImg)
@@ -195,4 +193,147 @@ void ZGPU::DeleteVertexArray(const uint32_t inCounter)
 	}
 	else return;
 	mVAOMap.erase(iter);
+}
+
+void ZGPU::BindingVertexBuffer(const uint32_t& bufferType, const uint32_t& bufferID)
+{
+	if (bufferType == VERTEXT_ARRAY_BUFFER) {
+		currentVBO = bufferID;
+	}
+	else if (bufferType == ELEMENT_VERTEXT_ARRAY_BUFFER) {
+		currentEBO = bufferID;
+	}
+	else assert(false);
+}
+
+void ZGPU::BufferUpData(const uint32_t& bufferType, size_t dataSize, void* data)
+{
+	uint32_t bufferID = 0;
+	if (bufferType == VERTEXT_ARRAY_BUFFER) {
+		bufferID = currentVBO;
+	}
+	else if (bufferType == ELEMENT_VERTEXT_ARRAY_BUFFER) {
+		bufferID = currentEBO;
+	}
+	else assert(false);
+	auto iter = mVBOMap.find(bufferID);
+	if (iter == mVBOMap.end()) assert(false);	//如果所对应的ID是空的直接报错
+	//把数据塞到对应的BufferObject里面
+	iter->second->SetBufferData(dataSize, data);
+}
+
+void ZGPU::BingdingVertexArray(const uint32_t& vaoID)
+{
+	currentVAO = vaoID;
+}
+
+void ZGPU::VertexAttributePointer(const uint32_t& bindingKey, const uint32_t& itemSize, const uint32_t& stride, const uint32_t& offset)
+{
+	auto iter = mVAOMap.find(currentVAO);
+	if (iter == mVAOMap.end()) assert(false);	//如果与ID对应的内存是空的直接报错
+	iter->second->Set(bindingKey, currentVBO, itemSize, stride, offset);
+}
+
+void ZGPU::PrintVAO(const uint32_t& inVAO)
+{
+	auto iter = mVAOMap.find(inVAO);
+	if (iter == mVAOMap.end()) assert(false);	//如果与ID对应的内存是空的直接报错
+	auto vaoMap = iter->second->GetBindingMap();
+	auto iter2 = vaoMap.begin();
+	for (; iter2 != vaoMap.end(); iter2++) {
+		std::cout << "VBOID: " << iter2->second.mVBOID << std::endl;
+		std::cout << "mItemSize: " << iter2->second.mItemSize << std::endl;
+		std::cout << "mStride: " << iter2->second.mStride << std::endl;
+		std::cout << "mOffset: " << iter2->second.mOffset << std::endl;
+		std::cout << std::endl;
+	}
+}
+
+void ZGPU::UseShaderProgram(ShaderBase* inShader)
+{
+	mShader = inShader;
+}
+
+void ZGPU::DrawElement(const uint32_t& drawMode, const uint32_t& first, const uint32_t& count)
+{
+	if (currentVAO == 0 || mShader == nullptr || count == 0) return;
+	auto vao_iter = mVAOMap.find(currentVAO);
+	if (vao_iter == mVAOMap.end()) {
+		std::cerr << "current VAO is not valid" << std::endl;
+		return;
+	}
+	VertexArrayObject* vao = vao_iter->second;
+	auto bindingMap = vao->GetBindingMap();
+
+	auto ebo_iter = mVBOMap.find(currentEBO);
+	if (ebo_iter == mVBOMap.end()) {
+		std::cerr << "current EBO is not valid" << std::endl;
+		return;
+	}
+	const BufferObject* ebo = ebo_iter->second;
+	std::vector<VsOutPoint> outvsPoints{};
+	VertexShaderStage(outvsPoints, vao, ebo, first, count);
+	if (outvsPoints.empty()) {
+		//std::cerr << "VertexShaderStage outPoints is empty" << std::endl;
+		return;
+	}
+
+	//进入NDC之前进行剪裁
+	std::vector<VsOutPoint> clipOutputs{};
+	Clipper::DoClipSpace(drawMode, outvsPoints, clipOutputs);
+	if (clipOutputs.empty()) {
+		//std::cerr << "DoClipSpace clipOutputs is empty" << std::endl;
+		return;
+	}
+
+	//进入NDC处理阶段
+	for (auto& pt : clipOutputs) {
+		PerspectiveDivision(pt);
+	}
+
+	//屏幕映射处理阶段
+	for (auto& pt : clipOutputs) {
+		ScreenMapping(pt);
+	}
+
+	//光栅化处理阶段(离散处理)
+	std::vector<VsOutPoint> rasterOutPoints;
+	Raster::Rasterize(rasterOutPoints, drawMode, clipOutputs);
+	if (rasterOutPoints.empty())return;
+
+	//颜色输出阶段
+	FsOutPoint fsPoints;
+	uint32_t pixelPos = 0;
+	for (uint32_t i = 0; i < rasterOutPoints.size(); i++) {
+		mShader->FragmentShader(rasterOutPoints[i], fsPoints);
+		pixelPos = fsPoints.mPosition.Y * mFrameBuffer->mWidth + fsPoints.mPosition.X;
+		mFrameBuffer->mColorBuffer[pixelPos] = fsPoints.mColor;
+	}
+}
+
+void ZGPU::VertexShaderStage(std::vector<VsOutPoint>& outvsPoints, const VertexArrayObject* vao, const BufferObject* vbo, const uint32_t first, const uint32_t count)
+{
+	auto bindingmap = vao->GetBindingMap();
+	byte* indicesdata = vbo->GetBufferData();
+	uint32_t index = 0;
+	for (uint32_t i = first; i < first + count; i++) {
+		size_t indicesOffset = i * sizeof(uint32_t);
+		memcpy(&index, indicesdata + indicesOffset, sizeof(uint32_t));
+
+		VsOutPoint outPt = mShader->VertexShader(bindingmap, mVBOMap, index);
+		outvsPoints.push_back(outPt);
+	}
+}
+
+void ZGPU::PerspectiveDivision(VsOutPoint& vsPoints)
+{
+	float oneOverlie = 1.0f / vsPoints.mPosition.W;
+	vsPoints.mPosition *= oneOverlie;
+	vsPoints.mPosition.W = 1.0f;
+	//修剪毛刺
+}
+
+void ZGPU::ScreenMapping(VsOutPoint& vsPoints)
+{
+	vsPoints.mPosition = mScreenMatrix * vsPoints.mPosition;
 }

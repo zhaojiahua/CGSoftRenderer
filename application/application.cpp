@@ -24,7 +24,7 @@ BOOL ZApplication::ZCreateWindow(HINSTANCE hInstance)
 	windowRect.right = (long)mWidth;
 	windowRect.bottom = (long)mHeight;
 	AdjustWindowRectEx(&windowRect, dwStyle, FALSE, dwExStyle);
-	mHwnd = CreateWindowW(mWinClassName, (LPWCH)"ComputeGraphicLearning", dwStyle, 2400, 100, windowRect.right, windowRect.bottom,nullptr, nullptr, hInstance, nullptr);	//调用windowAPI创建窗口
+	mHwnd = CreateWindowW(mWinClassName, (LPWCH)"ComputeGraphicLearning", dwStyle, 340, 100, windowRect.right, windowRect.bottom,nullptr, nullptr, hInstance, nullptr);	//调用windowAPI创建窗口
 	if (!mHwnd)return FALSE;
 	ShowWindow(mHwnd, true);
 	UpdateWindow(mHwnd);

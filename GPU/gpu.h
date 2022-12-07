@@ -5,6 +5,7 @@
 #include "../application/image.h"
 #include "../math/math.h"
 #include "dataStruct.h"
+#include "Shader/ShaderBase.h"
 
 class BufferObject;
 class VertexArrayObject;
@@ -65,6 +66,25 @@ public:
 	void DeleteVertexBuffer(const uint32_t inBufferCounter);
 	uint32_t GenerateVertexArray();
 	void DeleteVertexArray(const uint32_t inBufferCounter);
+	//提供VBO绑定操作接口
+	void BindingVertexBuffer(const uint32_t& bufferType, const uint32_t& bufferID);		//绑定VBO的类型在global.base里面提供(有顶点属性Buffer和顶点索引Buffer)
+	void BufferUpData(const uint32_t& bufferType, size_t dataSize, void* data);	//更新BufferData 数据转移到GPU缓存
+	//提供VAO绑定操作接口
+	void BingdingVertexArray(const uint32_t& vaoID);
+	void VertexAttributePointer(const uint32_t& bindingKey, const uint32_t& itemSize, const uint32_t& stride, const uint32_t& offset);	//创建对应VBO缓存的描述 
+
+	void PrintVAO(const uint32_t& inVAO);	//传入一个VAO句柄打印VAO信息
+
+	uint32_t GetCurrentVBO() const { return currentVBO; }
+	uint32_t GetCurrentEBO() const { return currentEBO; }
+	uint32_t GetCurrentVAO() const { return currentVAO; }
+
+	void UseShaderProgram(ShaderBase* inShader);	//指定要使用的shader
+	void DrawElement(
+		const uint32_t& drawMode,	//指定绘制模式
+		const uint32_t& first,	//绘制的开始位置(从第几个索引开始绘制)
+		const uint32_t& count	//绘制个数(绘制几个顶点)
+	);
 
 private:
 	//VBO相关/EBO也在其中
@@ -74,4 +94,14 @@ private:
 	uint32_t mVAOCounter{ 0 };	//VAO的数量,同时也是当前Buffer的句柄
 	std::map<uint32_t, VertexArrayObject*> mVAOMap;
 
+	uint32_t currentVBO{ 0 };		//当前VBO句柄
+	uint32_t currentEBO{ 0 };		//当前EBO句柄
+	uint32_t currentVAO{ 0 };	//当前VAO句柄
+
+	void VertexShaderStage(std::vector<VsOutPoint>& outvsPoints, const VertexArrayObject* vao, const BufferObject* vbo, const uint32_t first, const uint32_t count);
+	void PerspectiveDivision(VsOutPoint& vsPoints);	//透视除法
+	void ScreenMapping(VsOutPoint& vsPoints);	//屏幕像素化
+
+	ShaderBase* mShader{ nullptr };
+	math::Mat4f mScreenMatrix;	//屏幕空间矩阵,在屏幕参数已知的时候就可以确定了
 };
