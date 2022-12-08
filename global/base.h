@@ -45,3 +45,26 @@ struct ZRGBA
 //提供顶点之后的光栅化模式(比如画线或者画面)
 #define DRAW_LINES 0
 #define DRAW_TRIANGLES 1
+
+#define FRONT_FACE 0	//将正方向的面剪裁掉
+#define BACK_FACE 1	//将反方向的面剪裁掉
+#define CW_FRONT_FACE 0	//将顺时针方向设置为正面
+#define CCW_FRONT_FACE 1	//将逆时针方向设置为正面
+
+#define CULL_FACE 1	//开启或者关闭cull Face的功能
+#define DEPTH_TEST 2	//开启或者关闭深度检测的功能
+#define COLORBLENDING	3	//开启或关闭颜色混合功能
+#define BILINEARITY 4	//开启或关闭双线性插值读取图片
+
+#define DEPTH_LESS 0	//深度检测的方式,绘制小于当前深度值的点
+#define DEPTH_GREATER 1	//深度检测的方式,绘制大于当前深度值的点
+
+#define TEXTURE_FILTER 0		//设置纹理采样的方式
+#define TEXTURE_WRAP_U 1		//设置纹理U向的wrap方式
+#define TEXTURE_WRAP_V 2		//设置纹理V向的wrap方式
+
+#define TEXTURE_FILTER_NEAREST 0	//nearest图片采样方法
+#define TEXTURE_FILTER_LINEAR 1	//双线性插值图片采样方法
+
+#define TEXTURE_WRAP_REPEAT 0
+#define TEXTURE_WRAP_MIRROR 1

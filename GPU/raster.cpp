@@ -162,6 +162,10 @@ void Raster::InterpolantTriangle(const VsOutPoint& p1, const VsOutPoint& p2, con
 	tp.mColor = math::Lerp(p1.mColor,p2.mColor,p3.mColor,weight1,weight2,weight3);
 	//最后根据这个权重值差值计算出中间点的UV属性
 	tp.mUV = math::Lerp(p1.mUV, p2.mUV, p3.mUV, weight1, weight2, weight3);
+	//1/w的属性差值
+	tp.mOneOverW = math::Lerp(p1.mOneOverW, p2.mOneOverW, p3.mOneOverW, weight1, weight2, weight3);
+	//深度差值
+	tp.mPosition.Z = math::Lerp(p1.mPosition.Z, p2.mPosition.Z, p3.mPosition.Z, weight1, weight2, weight3);
 }
 
 ZRGBA Raster::LerpRGBA(const ZRGBA& inc1, const ZRGBA& inc2, float inweight)

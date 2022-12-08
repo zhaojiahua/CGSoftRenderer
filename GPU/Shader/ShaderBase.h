@@ -2,6 +2,7 @@
 #include "../dataStruct.h"
 #include "../bufferObject.h"
 #include "../../math/math.h"
+#include "../texture.h"
 
 //Shader的基类,后面所有的shader都继承于此
 class ShaderBase
@@ -14,7 +15,7 @@ public:
 	virtual VsOutPoint VertexShader(const std::map<uint32_t, BindingDescription>& invaoMap, const std::map<uint32_t, BufferObject*>& invboMap, const uint32_t& index) = 0;
 
 	//FragmentShader 传入来自VertexShader处理完的点,输出离散后的屏幕像素点
-	virtual void FragmentShader(const VsOutPoint& inVspoints, FsOutPoint& outPoints) = 0;
+	virtual void FragmentShader(const VsOutPoint& inVspoints, FsOutPoint& outPoints, const std::map<uint32_t, ZTexture*>& textures) = 0;
 
 //用于处理数据的公用工具
 public:

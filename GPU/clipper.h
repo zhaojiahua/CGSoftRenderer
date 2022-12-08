@@ -7,6 +7,9 @@ public:
 	//提供绘制方式,要绘制的面(的所有点),根据剪裁算法剪去视域外的点并添加截断需要差值的点
 	static void DoClipSpace(const uint32_t& drawMode, const std::vector<VsOutPoint>& primtives, std::vector<VsOutPoint>& outPuts);
 
+	//背面剔除算法
+	static bool CullFace(const uint32_t& frontFace, const uint32_t& cullface, const VsOutPoint& p0, const VsOutPoint& p1, const VsOutPoint& p2);
+
 private:
 	//SutherlandHodgman剪裁算法
 	static void SutherlandHodgman(const uint32_t& drawMode, const std::vector<VsOutPoint>& primtive, std::vector<VsOutPoint>& outPuts);

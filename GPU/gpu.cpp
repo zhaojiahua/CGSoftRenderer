@@ -65,11 +65,32 @@ void ZGPU::CheckValue(float& inValue)
 	}
 }
 
+void ZGPU::Trim(VsOutPoint& inPt)
+{
+	if (inPt.mPosition.X < -1.0f) inPt.mPosition.X = -1.0f;
+	if (inPt.mPosition.X > 1.0f) inPt.mPosition.X = 1.0f;
+
+	if (inPt.mPosition.Y < -1.0f) inPt.mPosition.Y = -1.0f;
+	if (inPt.mPosition.Y > 1.0f) inPt.mPosition.Y = 1.0f;
+
+	if (inPt.mPosition.Z < -1.0f) inPt.mPosition.Z = -1.0f;
+	if (inPt.mPosition.Z > 1.0f) inPt.mPosition.Z = 1.0f;
+}
+
 ZGPU::ZGPU(){}
 
 ZGPU::~ZGPU()
 {
 	if (mFrameBuffer) delete mFrameBuffer;
+
+	for (auto iter : mVBOMap) delete iter.second;
+	mVBOMap.clear();
+
+	for (auto iter : mVAOMap) delete iter.second;
+	mVAOMap.clear();
+
+	for (auto iter : mTextureMap) delete iter.second;
+	mTextureMap.clear();
 }
 
 ZGPU* ZGPU::GetZGPUInstance()
@@ -91,6 +112,7 @@ void ZGPU::Clear()
 	//并不是清除FrameBuffer,而是给FrameBuffer填充背景色
 	size_t pixelCount = mFrameBuffer->mHeight * mFrameBuffer->mWidth;
 	std::fill_n(mFrameBuffer->mColorBuffer, pixelCount, ZRGBA(20, 20, 15, 15));
+	std::fill_n(mFrameBuffer->mDepthBuffer, pixelCount, 1.0f);
 }
 
 void ZGPU::DrawPoint(const int32_t& inx, const int32_t& iny, const ZRGBA& incolor)
@@ -290,25 +312,139 @@ void ZGPU::DrawElement(const uint32_t& drawMode, const uint32_t& first, const ui
 	for (auto& pt : clipOutputs) {
 		PerspectiveDivision(pt);
 	}
+	
+	//在NDC空间进行背面剔除工作
+	std::vector<VsOutPoint> cullFaceOutputs = clipOutputs;
+	if (drawMode == DRAW_TRIANGLES && mEnableCullFace) {
+		cullFaceOutputs.clear();
+		for (uint32_t i = 0; i < clipOutputs.size() - 2; i += 3) {
+			if (Clipper::CullFace(mFrontFace, mCullFace, clipOutputs[i], clipOutputs[i + 1], clipOutputs[i + 2])) {
+				auto start = clipOutputs.begin() + i;
+				auto end = clipOutputs.begin() + i + 3;
+				cullFaceOutputs.insert(cullFaceOutputs.end(), start, end);	//在cullFaceOutputs.end()所在的位置之前插入从start到end的所有元素
+			}
+		}
+	}
 
 	//屏幕映射处理阶段
-	for (auto& pt : clipOutputs) {
+	for (auto& pt : cullFaceOutputs) {
 		ScreenMapping(pt);
 	}
 
 	//光栅化处理阶段(离散处理)
 	std::vector<VsOutPoint> rasterOutPoints;
-	Raster::Rasterize(rasterOutPoints, drawMode, clipOutputs);
+	Raster::Rasterize(rasterOutPoints, drawMode, cullFaceOutputs);
 	if (rasterOutPoints.empty())return;
+
+	//透视恢复阶段(每个属性乘以自身的w以恢复到正常状态)
+	for (auto& temppt : rasterOutPoints) {
+		PerspectiveRecover(temppt);
+	}
 
 	//颜色输出阶段
 	FsOutPoint fsPoints;
 	uint32_t pixelPos = 0;
 	for (uint32_t i = 0; i < rasterOutPoints.size(); i++) {
-		mShader->FragmentShader(rasterOutPoints[i], fsPoints);
+		mShader->FragmentShader(rasterOutPoints[i], fsPoints, mTextureMap);
+		//深度测试
+		if (mEnableDepthTest && !DepthTest(fsPoints)) continue;	//如果没有通过深度测试直接进入下一轮循环
+		ZRGBA tempColor= fsPoints.mColor;
+		if (bEnableBlend)tempColor = BlendColor(fsPoints);	//如果开启颜色混合
 		pixelPos = fsPoints.mPosition.Y * mFrameBuffer->mWidth + fsPoints.mPosition.X;
-		mFrameBuffer->mColorBuffer[pixelPos] = fsPoints.mColor;
+		mFrameBuffer->mColorBuffer[pixelPos] = tempColor;
 	}
+}
+
+void ZGPU::Enable(const uint32_t& value)
+{
+	switch (value)
+	{
+	case CULL_FACE:
+		mEnableCullFace = true;
+		break;
+	case DEPTH_TEST:
+		mEnableDepthTest = true;
+		break;
+	case COLORBLENDING:
+		bEnableBlend = true;
+		break;
+	default:
+		break;
+	}
+}
+
+void ZGPU::Disable(const uint32_t& value)
+{
+	switch (value)
+	{
+	case CULL_FACE:
+		mEnableCullFace = false;
+		break;
+	case DEPTH_TEST:
+		mEnableDepthTest = false;
+		break;
+	case COLORBLENDING:
+		bEnableBlend = false;
+		break;
+	default:
+		break;
+	}
+}
+
+void ZGPU::SetFrontFace(const uint32_t& value)
+{
+	mFrontFace = value;
+}
+
+void ZGPU::SetCullFace(const uint32_t& value)
+{
+	mCullFace = value;
+}
+
+void ZGPU::SetDepthPatter(const uint32_t& value)
+{
+	mDepthPatter = value;
+}
+
+uint32_t ZGPU::GenerateTexture()
+{
+	mTextureCounter++;
+	mTextureMap.insert(std::make_pair(mTextureCounter, new ZTexture()));
+	return mTextureCounter;
+}
+
+void ZGPU::DeleteTexture(const uint32_t& textureID)
+{
+	auto iter = mTextureMap.find(textureID);
+	if (iter != mTextureMap.end()) delete iter->second;
+	else return;
+	mTextureMap.erase(iter);
+}
+
+void ZGPU::BindTexture(const uint32_t& textureID)
+{
+	mCurrentTexture = textureID;
+}
+
+void ZGPU::TexImage2D(const uint32_t& width, const uint32_t& height, void* data)
+{
+	if (mCurrentTexture == 0)return;
+
+	auto iter = mTextureMap.find(mCurrentTexture);
+	if (iter == mTextureMap.end()) return;
+
+	auto tex = iter->second;
+	tex->SetBufferData(width, height, data);
+}
+
+void ZGPU::TexParameter(const uint32_t& param, const uint32_t& calue)
+{
+	if (mCurrentTexture == 0)return;
+	
+	auto iter = mTextureMap.find(mCurrentTexture);
+	if (iter == mTextureMap.end()) return;
+
+	iter->second->SetParameter(param, calue);
 }
 
 void ZGPU::VertexShaderStage(std::vector<VsOutPoint>& outvsPoints, const VertexArrayObject* vao, const BufferObject* vbo, const uint32_t first, const uint32_t count)
@@ -327,13 +463,68 @@ void ZGPU::VertexShaderStage(std::vector<VsOutPoint>& outvsPoints, const VertexA
 
 void ZGPU::PerspectiveDivision(VsOutPoint& vsPoints)
 {
-	float oneOverlie = 1.0f / vsPoints.mPosition.W;
-	vsPoints.mPosition *= oneOverlie;
+	vsPoints.mOneOverW = 1.0f / vsPoints.mPosition.W;
+	vsPoints.mPosition *= vsPoints.mOneOverW;
 	vsPoints.mPosition.W = 1.0f;
-	//修剪毛刺
+
+	//color和uv属性也分别进行透视除法(为后面的透视校正做准备)
+	vsPoints.mColor *= vsPoints.mOneOverW;
+	vsPoints.mUV*= vsPoints.mOneOverW;
+
+	//修剪毛刺(浮点运算可能会造成一些毛刺)
+	Trim(vsPoints);
+}
+
+void ZGPU::PerspectiveRecover(VsOutPoint& vsPoint)
+{
+	vsPoint.mColor /= vsPoint.mOneOverW;
+	vsPoint.mUV /= vsPoint.mOneOverW;
+
 }
 
 void ZGPU::ScreenMapping(VsOutPoint& vsPoints)
 {
 	vsPoints.mPosition = mScreenMatrix * vsPoints.mPosition;
+}
+
+bool ZGPU::DepthTest(const FsOutPoint& outpt)
+{
+	uint32_t pixelLoc = outpt.mPosition.Y * mFrameBuffer->mWidth + outpt.mPosition.X;
+	float oldDepth = mFrameBuffer->mDepthBuffer[pixelLoc];
+	switch (mDepthPatter)
+	{
+	case DEPTH_LESS:
+		if (outpt.mDepth < oldDepth) {
+			mFrameBuffer->mDepthBuffer[pixelLoc] = outpt.mDepth;
+			return true;
+		}
+		else return false;
+		break;
+	case DEPTH_GREATER:
+		if (outpt.mDepth > oldDepth) {
+			mFrameBuffer->mDepthBuffer[pixelLoc] = outpt.mDepth;
+			return true;
+		}
+		else return false;
+		break;
+	default:
+		return false;
+		break;
+	}
+}
+
+ZRGBA ZGPU::BlendColor(const FsOutPoint& inpt)
+{
+	ZRGBA tempResult;
+	//首先拿到底色
+	uint32_t pixelLoc = inpt.mPosition.Y * mFrameBuffer->mWidth + inpt.mPosition.X;
+	ZRGBA dstColor = mFrameBuffer->mColorBuffer[pixelLoc];
+	//然后用当前颜色和底色混合
+	ZRGBA srcColor = inpt.mColor;
+	float weight = static_cast<float>(srcColor.zA) / 255.0f;
+	tempResult.zA = static_cast<float>(srcColor.zA) * weight + static_cast<float> (dstColor.zA) * (1.0f - weight);
+	tempResult.zR = static_cast<float>(srcColor.zR) * weight + static_cast<float> (dstColor.zR) * (1.0f - weight);
+	tempResult.zG = static_cast<float>(srcColor.zG) * weight + static_cast<float>(dstColor.zG) * (1.0f - weight);
+	tempResult.zB = static_cast<float>(srcColor.zB) * weight + static_cast<float>(dstColor.zB) * (1.0f - weight);
+	return tempResult;
 }

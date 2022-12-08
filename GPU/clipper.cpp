@@ -27,6 +27,23 @@ void Clipper::DoClipSpace(const uint32_t& drawMode, const std::vector<VsOutPoint
 	}
 }
 
+bool Clipper::CullFace(const uint32_t& frontFace, const uint32_t& cullface, const VsOutPoint& p0, const VsOutPoint& p1, const VsOutPoint& p2)
+{
+	math::vec3f v1 = p1.mPosition - p0.mPosition;
+	math::vec3f v2 = p2.mPosition - p0.mPosition;
+	math::vec3f Dir = math::cross(v1, v2);
+
+	//注意 NDC空间下的是左手坐标系,要用左手定则来判定
+	if (cullface == BACK_FACE) {
+		if (frontFace == CCW_FRONT_FACE) return Dir.Z > 0;
+		else return Dir.Z < 0;
+	}
+	else {
+		if (frontFace == CCW_FRONT_FACE) return Dir.Z < 0;
+		else return Dir.Z > 0;
+	}
+}
+
 
 void Clipper::SutherlandHodgman(const uint32_t& drawMode, const std::vector<VsOutPoint>& primtive, std::vector<VsOutPoint>& outPuts)
 {

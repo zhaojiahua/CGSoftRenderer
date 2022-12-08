@@ -14,6 +14,7 @@ struct  BindingDescription
 //vertex shader处理的顶点数据结构(包含顶点的世界空间位置,线性空间颜色,UV等)
 struct VsOutPoint
 {
+	float mOneOverW{ 0.0f };
 	math::vec4f mPosition;
 	math::vec4f mColor;		//为了方便计算这里用0-1表示颜色
 	math::vec2f mUV;

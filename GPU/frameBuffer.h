@@ -16,5 +16,7 @@ public:
 	uint32_t mWidth{ 0 };		//buffer的宽
 	uint32_t mHeight{ 0 };		//buffer的高
 	ZRGBA* mColorBuffer{ nullptr };		//存储来自拷贝mCanvasDC的位图的数据
+	float* mDepthBuffer{ nullptr };	//图片的深度缓存数据
+
 	bool mExternBuffer{ false };		//如果是自己创建的内存就为false,如果是外部传入的内存就是true,为析构函数调用
 };

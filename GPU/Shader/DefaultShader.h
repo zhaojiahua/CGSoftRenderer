@@ -9,7 +9,7 @@ public:
 	~DefaultShader();
 
 	VsOutPoint VertexShader(const std::map<uint32_t, BindingDescription>& invaoMap, const std::map<uint32_t, BufferObject*>& invboMap, const uint32_t& index) override;
-	void FragmentShader(const VsOutPoint& inVspoints, FsOutPoint& outPoints)override;
+	void FragmentShader(const VsOutPoint& inVspoints, FsOutPoint& outPoints, const std::map<uint32_t, ZTexture*>& textures)override;
 
 public:
 	math::Mat4f mModeMatrix;

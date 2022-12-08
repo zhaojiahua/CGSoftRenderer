@@ -6,6 +6,7 @@
 #include "../math/math.h"
 #include "dataStruct.h"
 #include "Shader/ShaderBase.h"
+#include "texture.h"
 
 class BufferObject;
 class VertexArrayObject;
@@ -28,11 +29,9 @@ class ZGPU
 	//check UV值
 	void CheckValue(float& inValue);
 
-public:
-	bool bEnableBlend = false;		//是否开启图像融合模式
-	bool bUseBilinearity = false;	//是否使用双线性差值采样纹理
-	uint8_t UVwrap = TEXTRUE_WRAP_REPEAT;	//uvwrap的方式
+	void Trim(VsOutPoint& inPt);
 
+public:
 	ZGPU();
 	~ZGPU();
 	static ZGPU* GetZGPUInstance();	//单例模式,获取此类的实例
@@ -86,6 +85,26 @@ public:
 		const uint32_t& count	//绘制个数(绘制几个顶点)
 	);
 
+	//提供统一的开启状态的接口
+	void Enable(const uint32_t& value);
+	//提供统一的关闭状态的接口
+	void Disable(const uint32_t& value);
+
+	//指定正面朝向是顺时针或逆时针
+	void SetFrontFace(const uint32_t& value);
+	//指定剔除的是正面还是反面
+	void SetCullFace(const uint32_t& value);
+	//设置深度测试的方式
+	void SetDepthPatter(const uint32_t& value);
+
+	//texture
+	uint32_t GenerateTexture();
+	void DeleteTexture(const uint32_t& textureID);
+	void BindTexture(const uint32_t& textureID);
+	void TexImage2D(const uint32_t& width, const uint32_t& height, void* data);
+	void TexParameter(const uint32_t& param, const uint32_t& calue);
+
+
 private:
 	//VBO相关/EBO也在其中
 	uint32_t mBufferCounter{ 0 };		//记录VBO的数量,同时也是当前Buffer的句柄
@@ -100,8 +119,31 @@ private:
 
 	void VertexShaderStage(std::vector<VsOutPoint>& outvsPoints, const VertexArrayObject* vao, const BufferObject* vbo, const uint32_t first, const uint32_t count);
 	void PerspectiveDivision(VsOutPoint& vsPoints);	//透视除法
+	void PerspectiveRecover(VsOutPoint& vsPoints);	//透视校正
 	void ScreenMapping(VsOutPoint& vsPoints);	//屏幕像素化
+	bool DepthTest(const FsOutPoint& outpt);	//深度测试函数
+	ZRGBA BlendColor(const FsOutPoint& inpt);	//颜色混合函数
 
 	ShaderBase* mShader{ nullptr };
 	math::Mat4f mScreenMatrix;	//屏幕空间矩阵,在屏幕参数已知的时候就可以确定了
+
+	//Cull face
+	bool mEnableCullFace{ true };	//默认背面剔除开启
+	uint32_t mFrontFace{ CCW_FRONT_FACE };	//默认逆时针方向的面为正面
+	uint32_t mCullFace{ BACK_FACE };	//默认剔除的是背面朝向的面
+
+	//Depth test
+	bool mEnableDepthTest{ true };
+	uint32_t mDepthPatter{ DEPTH_LESS };
+
+	//texture
+	uint32_t mCurrentTexture{ 0 };
+	uint32_t mTextureCounter{ 0 };
+	std::map<uint32_t, ZTexture*> mTextureMap;
+
+
+public:
+	bool bEnableBlend{ true };		//是否开启图像融合模式
+	bool bUseBilinearity{ false };	//是否使用双线性差值采样纹理
+	uint8_t UVwrap = TEXTRUE_WRAP_REPEAT;	//uvwrap的方式
 };

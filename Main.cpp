@@ -17,12 +17,18 @@ math::Mat4f g_modelMat;
 math::Mat4f g_viewMat;
 math::Mat4f g_perspectiveMat;
 uint32_t g_vao = 0;
+uint32_t g_vao1 = 0;
+uint32_t g_vao2 = 0;
 uint32_t g_ebo = 0;
 uint32_t g_positionvbo = 0;
+uint32_t g_positionvbo1 = 0;
+uint32_t g_positionvbo2 = 0;
 uint32_t g_colorvbo = 0;
+uint32_t g_colorvbo1 = 0;
+uint32_t g_colorvbo2 = 0;
 uint32_t g_uvvbo = 0;
-float angle = 90.0f;	//模型开始旋转的初始角度
-float cameraLoc = 3.0f;	//相机初始位置
+float angle = 0.0f;	//模型开始旋转的初始角度
+float cameraLoc = 2.0f;	//相机初始位置
 void transform() {
 	angle += 0.05f;	//让模型每帧旋转0.01f弧度
 	cameraLoc -= 0.005f;	//每帧把相机往前移动0.0f单位
@@ -38,9 +44,17 @@ void Prepare() {
 	g_modelMat = math::Rotate(math::Mat4f(1.0f), angle, math::vec3f(0.0f, 1.0f, 0.0f));
 	auto cameraModelMatrix = math::Translate(math::Mat4f(1.0f), math::vec3f{ 0.0f,0.0f,cameraLoc });
 	g_viewMat = math::Inverse(cameraModelMatrix);
+	Sgl->Enable(CULL_FACE);
+	Sgl->Enable(DEPTH_TEST);
+	Sgl->SetFrontFace(CCW_FRONT_FACE);
+	Sgl->SetCullFace(BACK_FACE);
 	//一个三角形数据缓存
-	float meshPos[] = { -0.5f,-0.5f,0.0f,		-0.5f,0.5f,0.0f,		0.5f,-0.5f,0.0f };	
+	float meshPos[] = { -0.5f,0.0f,0.0f,		0.5f,0.0f,0.0f,		0.25f,0.5f,0.0f };
+	float meshPos1[] = { 0.3f,0.0f,-0.3f,		0.8f,0.0f,-0.3f,		0.45f,0.5f,-0.3f };
+	float meshPos2[] = { -0.1f,0.0f,0.3f,		0.5f,-0.1f,0.3f,		0.4f,0.6f,0.3f };
 	float meshColor[] = { 1.0f,0.0f,0.0f,1.0f,		0.0f,1.0f,0.0f,1.0f,		0.0f,0.0f,1.0f,1.0f };
+	float meshColor1[] = { 1.0f,1.0f,0.0f,1.0f,		1.0f,1.0f,0.0f,1.0f,		1.0f,1.0f,0.0f,1.0f };
+	float meshColor2[] = { 1.0f,0.0f,0.0f,0.5f,		1.0f,0.0f,0.0f,0.5f,		1.0f,0.0f,0.0f,0.5f };
 	float meshUV[] = { 0.0f,0.0f,		0.0f,1.0f,		1.0f,0.0f };
 	uint32_t meshIndex[] = { 0,1,2 };
 
@@ -51,36 +65,92 @@ void Prepare() {
 	Sgl->BufferUpData(ELEMENT_VERTEXT_ARRAY_BUFFER, sizeof(uint32_t) * 3, meshIndex);	//将数据传入
 	Sgl->BindingVertexBuffer(ELEMENT_VERTEXT_ARRAY_BUFFER, 0);	//重新将当前VBO编号设置成0(解绑)
 	
-	//生成VAO且绑定
+	g_uvvbo = Sgl->GenerateVertexBuffer();
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_uvvbo);
+	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 6, meshUV);
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, 0);
+
 	g_vao = Sgl->GenerateVertexArray();
 	Sgl->BingdingVertexArray(g_vao);
-	//生成每个属性VBO并绑定设置其属性信息
+
 	g_positionvbo = Sgl->GenerateVertexBuffer();
-	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_positionvbo);	//绑定VBO编号
-	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 9, meshPos);	//将数据传入
-	Sgl->VertexAttributePointer(0, 3, 3 * sizeof(float), 0);	//设置描述信息
-	g_colorvbo = Sgl->GenerateVertexBuffer();
-	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_colorvbo);	//绑定VBO编号
-	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 12, meshColor);	//将数据传入
-	Sgl->VertexAttributePointer(1, 4, 4 * sizeof(float), 0);	//设置描述信息
-	g_uvvbo = Sgl->GenerateVertexBuffer();
-	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_uvvbo);	//绑定VBO编号
-	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 6, meshUV);	//将数据传入
-	Sgl->VertexAttributePointer(2, 2, 2 * sizeof(float), 0);	//设置描述信息
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_positionvbo);
+	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 9, meshPos);
+	Sgl->VertexAttributePointer(0, 3, 3 * sizeof(float), 0);
+
+	g_colorvbo= Sgl->GenerateVertexBuffer();
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_colorvbo);
+	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 12, meshColor);
+	Sgl->VertexAttributePointer(1, 4, 4 * sizeof(float), 0);
+
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_uvvbo);
+	Sgl->VertexAttributePointer(2, 2, 2 * sizeof(float), 0);
+		
 	//解绑
 	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, 0);
 	Sgl->BingdingVertexArray(0);
 
+	//绑定另一个三角形
+	g_vao1 = Sgl->GenerateVertexArray();
+	Sgl->BingdingVertexArray(g_vao1);
+
+	g_positionvbo1 = Sgl->GenerateVertexBuffer();
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_positionvbo1);
+	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 9, meshPos1);
+	Sgl->VertexAttributePointer(0, 3, 3 * sizeof(float), 0);
+
+	g_colorvbo1 = Sgl->GenerateVertexBuffer();
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_colorvbo1);
+	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 12, meshColor1);
+	Sgl->VertexAttributePointer(1, 4, 4 * sizeof(float), 0);
+
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_uvvbo);
+	Sgl->VertexAttributePointer(2, 2, 2 * sizeof(float), 0);
+
+	//解绑
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, 0);
+	Sgl->BingdingVertexArray(0);
+
+	//第三个三角形
+	g_vao2 = Sgl->GenerateVertexArray();
+	Sgl->BingdingVertexArray(g_vao2);
+
+	g_positionvbo2 = Sgl->GenerateVertexBuffer();
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_positionvbo2);
+	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 9, meshPos2);
+	Sgl->VertexAttributePointer(0, 3, 3 * sizeof(float), 0);
+
+	g_colorvbo2 = Sgl->GenerateVertexBuffer();
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_colorvbo2);
+	Sgl->BufferUpData(VERTEXT_ARRAY_BUFFER, sizeof(float) * 12, meshColor2);
+	Sgl->VertexAttributePointer(1, 4, 4 * sizeof(float), 0);
+
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, g_uvvbo);
+	Sgl->VertexAttributePointer(2, 2, 2 * sizeof(float), 0);
+
+	//解绑
+	Sgl->BindingVertexBuffer(VERTEXT_ARRAY_BUFFER, 0);
+	Sgl->BingdingVertexArray(0);
 }
 
 void Render() {
-	transform();
+	//transform();
 	g_shader->mModeMatrix = g_modelMat;
 	g_shader->mViewMatrix = g_viewMat;
 	g_shader->mPerspectiveMatrix = g_perspectiveMat;
 	Sgl->Clear();
 	Sgl->UseShaderProgram(g_shader);
 	Sgl->BingdingVertexArray(g_vao);
+	Sgl->BindingVertexBuffer(ELEMENT_VERTEXT_ARRAY_BUFFER, g_ebo);
+	Sgl->DrawElement(DRAW_TRIANGLES, 0, 3);
+
+	//再绘制第二个三角形
+	Sgl->BingdingVertexArray(g_vao1);
+	Sgl->BindingVertexBuffer(ELEMENT_VERTEXT_ARRAY_BUFFER, g_ebo);
+	Sgl->DrawElement(DRAW_TRIANGLES, 0, 3);
+
+	//绘制第三个三角形
+	Sgl->BingdingVertexArray(g_vao2);
 	Sgl->BindingVertexBuffer(ELEMENT_VERTEXT_ARRAY_BUFFER, g_ebo);
 	Sgl->DrawElement(DRAW_TRIANGLES, 0, 3);
 }
@@ -97,7 +167,7 @@ int APIENTRY wWinMain(
 	_In_ int nCmdShow)
 {
 	if (!ZApp->InitZApplication(hInstance, 800, 600))return -1;
-	//Sgl->InitSurface(ZApp->GetWidth(), ZApp->GetHeight(), ZApp->GetCanvasBuffer());
+	Sgl->InitSurface(ZApp->GetWidth(), ZApp->GetHeight(), ZApp->GetCanvasBuffer());
 	Prepare();
 	bool alive = true;
 	while (alive) {

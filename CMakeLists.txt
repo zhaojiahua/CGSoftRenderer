@@ -29,9 +29,10 @@ aux_source_directory(. SRCS)
 #工程所有cpp文件编译链接,生成exe
 add_executable(softRenderer "Main.cpp" "global/base.cpp")
 add_executable(testMath "mathTest.cpp")
-
-#将Functions.lib链入softRenderer
-target_link_libraries(softRenderer Functions)
+add_executable(TestTextrue "textrueTest.cpp" "global/base.cpp")
 
 #将application.lib GPU.lib链入softRenderer
-target_link_libraries(softRenderer applicationlib GPUlib mathlib)
+target_link_libraries(softRenderer applicationlib GPUlib mathlib Functions)
+
+#将application.lib GPU.lib链入softRenderer
+target_link_libraries(TestTextrue applicationlib GPUlib mathlib Functions)
