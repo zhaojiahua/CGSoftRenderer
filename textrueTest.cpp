@@ -25,7 +25,7 @@ uint32_t g_uvvbo = 0;
 uint32_t g_texture = 0;
 ZImage* g_image = nullptr;
 
-
+float rotateSpeed = 0.0f;
 void Prepare() {
 	g_shader = new TextureShader();
 	g_image = ZImage::CreateZImage("assets/images/tx01.png");
@@ -38,7 +38,7 @@ void Prepare() {
 	Sgl->BindTexture(0);
 
 	g_perspectiveMat = math::Perspective(60.0f, (float)ZApp->GetWidth() / (float)ZApp->GetHeight(), 0.1f, 100.0f);
-	g_modelMat = math::Rotate(math::Mat4f(1.0f), 0.0f, math::vec3f(0.0f, 1.0f, 0.0f));
+	g_modelMat = math::Rotate(math::Mat4f(1.0f), rotateSpeed, math::vec3f(0.0f, 1.0f, 0.0f));
 	auto cameraModelMatrix = math::Translate(math::Mat4f(1.0f), math::vec3f{ 0.0f,0.0f,2.0f });
 	g_viewMat = math::Inverse(cameraModelMatrix);
 	Sgl->Enable(CULL_FACE);
@@ -46,9 +46,9 @@ void Prepare() {
 	Sgl->SetFrontFace(CCW_FRONT_FACE);
 	Sgl->SetCullFace(BACK_FACE);
 	//一个三角形数据缓存
-	float meshPos[] = { -0.5f,0.0f,0.0f,		0.5f,0.0f,0.0f,		0.25f,0.5f,0.0f };
+	float meshPos[] = { -1.0f,-0.5f,0.0f,		1.0f,-0.5f,0.0f,		0.0f,1.0f,0.0f };
 	float meshColor[] = { 1.0f,0.0f,0.0f,1.0f,		0.0f,1.0f,0.0f,1.0f,		0.0f,0.0f,1.0f,1.0f };
-	float meshUV[] = { 0.0f,0.0f,		0.0f,1.0f,		1.0f,0.0f };
+	float meshUV[] = { 0.0f,0.0f,		1.0f,0.0f,		0.5f,1.0f };
 	uint32_t meshIndex[] = { 0,1,2 };
 
 	//在GPU中生成相应的EBO
@@ -82,10 +82,17 @@ void Prepare() {
 
 }
 
+void Transform() {
+	rotateSpeed += 0.01f;
+	g_modelMat = math::Rotate(math::Mat4f(1.0f), rotateSpeed, math::vec3f(0.0f, 1.0f, 0.0f));
+}
+
 void Render() {
+	Transform();
 	g_shader->mModeMatrix = g_modelMat;
 	g_shader->mViewMatrix = g_viewMat;
 	g_shader->mPerspectiveMatrix = g_perspectiveMat;
+	g_shader->mDiffuseTexture = g_texture;
 	Sgl->Clear();
 	Sgl->UseShaderProgram(g_shader);
 	Sgl->BingdingVertexArray(g_vao);

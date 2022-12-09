@@ -24,6 +24,7 @@ void TextureShader::FragmentShader(const VsOutPoint& inVspoints, FsOutPoint& out
 	outPoints.mDepth = inVspoints.mPosition.Z;
 
 	auto iter = textures.find(mDiffuseTexture);
+	if (iter == textures.end())return;
 	auto texture = iter->second;
 
 	math::vec4f diffuseColor = texture->GetColor(inVspoints.mUV.X, inVspoints.mUV.Y);
