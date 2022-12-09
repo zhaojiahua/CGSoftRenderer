@@ -68,3 +68,9 @@ struct ZRGBA
 
 #define TEXTURE_WRAP_REPEAT 0
 #define TEXTURE_WRAP_MIRROR 1
+
+//键盘按键
+#define KEY_W 0x57	// 0011 1001
+#define KEY_A 0x41		// 0010 1001
+#define KEY_S 0x53		// 0011 0101
+#define KEY_D 0x44	// 0010 1100

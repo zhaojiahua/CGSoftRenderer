@@ -463,6 +463,7 @@ void ZGPU::VertexShaderStage(std::vector<VsOutPoint>& outvsPoints, const VertexA
 
 void ZGPU::PerspectiveDivision(VsOutPoint& vsPoints)
 {
+	assert(vsPoints.mPosition.W != 0);
 	vsPoints.mOneOverW = 1.0f / vsPoints.mPosition.W;
 	vsPoints.mPosition *= vsPoints.mOneOverW;
 	vsPoints.mPosition.W = 1.0f;

@@ -420,4 +420,31 @@ namespace math {
 	static vec4f Lerp(const vec4f& inf1, const vec4f& inf2, const vec4f& inf3, const float& weight1, const float& weight2, const float& weight3) {
 		return weight1 * inf1 + weight2 * inf2 + weight3 * inf3;
 	}
+
+	//由相机的当前位置和朝向推算出试图变换矩阵
+	template<typename T,typename V>
+	ZMatrix4X4<T> GetViewMatrixFromLookAt(const ZVector3D<V>& eyeLocation, const ZVector3D<V>& lookCenter, const ZVector3D<V>& top) {
+		ZVector3D<V>frontV = normalize(lookCenter - eyeLocation);
+		ZVector3D<V>rightV = normalize(cross(frontV, top));
+		ZVector3D<V>upV = normalize(cross(rightV, frontV));
+
+		ZMatrix4X4<T> tempResult(static_cast<T>(1));
+
+		tempResult.Set(0, 0, rightV.X);
+		tempResult.Set(0, 1, rightV.Y);
+		tempResult.Set(0, 2, rightV.Z);
+		tempResult.Set(0, 3, -dot(rightV, eyeLocation));
+
+		tempResult.Set(1, 0, upV.X);
+		tempResult.Set(1, 1, upV.Y);
+		tempResult.Set(1, 2, upV.Z);
+		tempResult.Set(1, 3, -dot(upV, eyeLocation));
+
+		tempResult.Set(2, 0, -frontV.X);
+		tempResult.Set(2, 1, -frontV.Y);
+		tempResult.Set(2, 2, -frontV.Z);
+		tempResult.Set(2, 3, dot(frontV, eyeLocation));
+
+		return tempResult;
+	}
 }

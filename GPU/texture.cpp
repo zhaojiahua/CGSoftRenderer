@@ -36,6 +36,17 @@ math::vec4f ZTexture::GetColor(float u, float v)
 		int x = std::round(u * (mWidth - 1));
 		int y = std::round(v * (mHeight - 1));
 
+		if (x > mWidth || x < 0)
+		{
+			std::cout << "u error!" << std::endl;
+			x = 0;
+		}
+		if (y > mHeight || y < 0)
+		{
+			std::cout << "v error!" << std::endl;
+			y = 0;
+		}
+
 		tempColor = mBuffer[y * mWidth + x];
 	}
 	else if (mFilter == TEXTURE_FILTER_LINEAR) {
@@ -46,6 +57,17 @@ math::vec4f ZTexture::GetColor(float u, float v)
 		int r = std::ceil(x);
 		int b = std::floor(y);
 		int t = std::ceil(y);
+
+		if (l > mWidth || l < 0 || r > mWidth || r < 0)
+		{
+			std::cout << "u error!" << std::endl;
+			l = r = 0;
+		}
+		if (b > mHeight || b < 0 || t > mHeight || t < 0)
+		{
+			std::cout << "v error!" << std::endl;
+			b = t = 0;
+		}
 
 		float scale_V = 0.0f;
 		if (t == b) scale_V = 1.0;
@@ -76,7 +98,7 @@ math::vec4f ZTexture::GetColor(float u, float v)
 
 void ZTexture::SetParameter(const uint32_t& type, const uint32_t& value)
 {
-	switch (value)
+	switch (type)
 	{
 	case TEXTURE_FILTER:
 		mFilter = value;

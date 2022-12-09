@@ -58,7 +58,7 @@ namespace math {
 		}
 		ZVector2D<T> operator/=(T inV) {
 			assert(inV != 0);
-			float f = static_cast<float> (1) / inV;
+			float f = static_cast<T> (1) / inV;
 			X *= f; Y *= f;
 			return *this;
 		}

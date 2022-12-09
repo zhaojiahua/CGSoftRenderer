@@ -110,6 +110,41 @@ void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	static POINT bserPt[4];	//这种公用的变量一定要放在全局区
 	switch (message)
 	{
+	case WM_KEYDOWN:
+	{
+		if (mCamera) {
+			mCamera->OnKeyDown(wParam);
+		}
+		break;
+	}
+	case WM_KEYUP:
+	{
+		if (mCamera) {
+			mCamera->OnKeyUp(wParam);
+		}
+		break;
+	}
+	case WM_RBUTTONDOWN:
+	{
+		if (mCamera) {
+			mCamera->OnRMouseDown((int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam));
+		}
+		break;
+	}
+	case WM_RBUTTONUP:
+	{
+		if (mCamera) {
+			mCamera->OnRMouseUp((int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam));
+		}
+		break;
+	}
+	case WM_MOUSEMOVE:
+	{
+		if (mCamera) {
+			mCamera->OnRMouseMove((int)(short)LOWORD(lParam), (int)(short)HIWORD(lParam));
+		}
+		break;
+	}
 	case WM_CLOSE: {
 		//if (MessageBox(hWnd, TEXT("are you sure"), TEXT("Confirm"), MB_YESNO) == 6) DestroyWindow(hWnd);//此处销毁窗体,会自动发出WM_DESTROY
 		//else	return;
@@ -124,11 +159,6 @@ void ZApplication::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	}
 	case WM_LBUTTONDOWN: {
 		StringCchPrintf(szbuffer, 256, TEXT("left mouse button down\n"));
-		WriteConsole(gOutHandle, szbuffer, 256, nullptr, nullptr);
-		break;
-	}
-	case WM_RBUTTONDOWN: {
-		StringCchPrintf(szbuffer, 256, TEXT("right mouse button down\n"));
 		WriteConsole(gOutHandle, szbuffer, 256, nullptr, nullptr);
 		break;
 	}
@@ -161,4 +191,7 @@ void ZApplication::Show()
 {
 	BitBlt(hdc, 0, 0, mWidth, mHeight, mCanvasDC, 0, 0, SRCCOPY);
 }
-
+void ZApplication::SetCamera(ZCamera* incamera)
+{
+	mCamera = incamera;
+}

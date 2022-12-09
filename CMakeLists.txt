@@ -30,9 +30,13 @@ aux_source_directory(. SRCS)
 add_executable(softRenderer "Main.cpp" "global/base.cpp")
 add_executable(testMath "mathTest.cpp")
 add_executable(TestTextrue "textrueTest.cpp" "global/base.cpp")
+add_executable(TestCamera "cameraTest.cpp" "global/base.cpp")
 
 #将application.lib GPU.lib链入softRenderer
 target_link_libraries(softRenderer applicationlib GPUlib mathlib Functions)
 
-#将application.lib GPU.lib链入softRenderer
+#将application.lib GPU.lib链入TestTextrue
 target_link_libraries(TestTextrue applicationlib GPUlib mathlib Functions)
+
+#将application.lib GPU.lib链入TestCamera
+target_link_libraries(TestCamera applicationlib GPUlib mathlib Functions)

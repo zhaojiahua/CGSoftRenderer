@@ -1,6 +1,7 @@
 #pragma once
 #include "../global/base.h"
 #include <Windows.h>
+#include "camera.h"
 
 //自定义一个窗体类
 class ZApplication
@@ -25,6 +26,8 @@ class ZApplication
 	HDC mCanvasDC;	//用于起背后绘图的dc,每绘制完一帧完整的图像之后,再将此数据完整拷贝到主dc中
 	HBITMAP mhBmp;	//用于CanvasDC内部生成的位图(bitmap)
 	void* mCanvasBuffer{ nullptr };	//mhBmp对应的内存起始位置指针(用来指向bitmap)
+
+	ZCamera* mCamera{ nullptr };
 
 private:
 	BOOL ZCreateWindow(HINSTANCE hInstance);		//创建一个窗口实例
@@ -52,4 +55,6 @@ public:
 	uint32_t GetWidth() const { return mWidth; }
 	uint32_t GetHeight() const { return mHeight; }
 	void* GetCanvasBuffer() const { return mCanvasBuffer; }
+
+	void SetCamera(ZCamera* incamera);
 };
