@@ -158,7 +158,7 @@ namespace math {
 		}
 	};
 
-	template <typename T>
+	template <typename T >
 	class ZVector4D
 	{
 	public:
@@ -170,6 +170,7 @@ namespace math {
 		ZVector4D(T inx, T iny, T inz, T inw) : X(inx), Y(iny), Z(inz), W(inw) {};
 		ZVector4D(const ZVector2D<T>& inVector2D) :X(inVector2D.X), Y(inVector2D.Y), Z(0), W(0) {}
 		ZVector4D(const ZVector3D<T>& inVector3D) :X(inVector3D.X), Y(inVector3D.Y), Z(inVector3D.Z), W(0) {}
+		ZVector4D(const ZVector3D<T>& inVector3D,const T& insigle) :X(inVector3D.X), Y(inVector3D.Y), Z(inVector3D.Z), W(insigle) {}
 		ZVector4D(const ZVector4D<T>& inVector4D) :X(inVector4D.X), Y(inVector4D.Y), Z(inVector4D.Z), W(inVector4D.W) {}
 
 		//运算符重载

@@ -17,6 +17,7 @@ struct VsOutPoint
 	float mOneOverW{ 0.0f };
 	math::vec4f mPosition;
 	math::vec4f mColor;		//为了方便计算这里用0-1表示颜色
+	math::vec3f mNormal;		//点法线
 	math::vec2f mUV;
 };
 

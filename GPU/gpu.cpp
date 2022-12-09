@@ -471,6 +471,7 @@ void ZGPU::PerspectiveDivision(VsOutPoint& vsPoints)
 	//color和uv属性也分别进行透视除法(为后面的透视校正做准备)
 	vsPoints.mColor *= vsPoints.mOneOverW;
 	vsPoints.mUV*= vsPoints.mOneOverW;
+	vsPoints.mNormal *= vsPoints.mOneOverW;
 
 	//修剪毛刺(浮点运算可能会造成一些毛刺)
 	Trim(vsPoints);
@@ -480,6 +481,7 @@ void ZGPU::PerspectiveRecover(VsOutPoint& vsPoint)
 {
 	vsPoint.mColor /= vsPoint.mOneOverW;
 	vsPoint.mUV /= vsPoint.mOneOverW;
+	vsPoint.mNormal /= vsPoint.mOneOverW;
 
 }
 

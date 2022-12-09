@@ -447,4 +447,10 @@ namespace math {
 
 		return tempResult;
 	}
+
+	//钳制函数
+	template<typename T>
+	T Clamp(const T& invalue, const T& min, const T& max) {
+		return invalue < min ? min : (max < invalue ? max : invalue);
+	}
 }

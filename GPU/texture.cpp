@@ -38,12 +38,12 @@ math::vec4f ZTexture::GetColor(float u, float v)
 
 		if (x > mWidth || x < 0)
 		{
-			std::cout << "u error!" << std::endl;
+			//std::cout << "u error!" << std::endl;
 			x = 0;
 		}
 		if (y > mHeight || y < 0)
 		{
-			std::cout << "v error!" << std::endl;
+			//std::cout << "v error!" << std::endl;
 			y = 0;
 		}
 
@@ -60,12 +60,12 @@ math::vec4f ZTexture::GetColor(float u, float v)
 
 		if (l > mWidth || l < 0 || r > mWidth || r < 0)
 		{
-			std::cout << "u error!" << std::endl;
+			//std::cout << "u error!" << std::endl;
 			l = r = 0;
 		}
 		if (b > mHeight || b < 0 || t > mHeight || t < 0)
 		{
-			std::cout << "v error!" << std::endl;
+			//std::cout << "v error!" << std::endl;
 			b = t = 0;
 		}
 

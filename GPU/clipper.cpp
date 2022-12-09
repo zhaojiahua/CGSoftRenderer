@@ -111,6 +111,7 @@ VsOutPoint Clipper::Intersect(const VsOutPoint& lastP, const VsOutPoint& current
 	tempresult.mPosition = math::Lerp(lastP.mPosition, currentP.mPosition, weight);
 	tempresult.mColor= math::Lerp(lastP.mColor, currentP.mColor, weight);
 	tempresult.mUV= math::Lerp(lastP.mUV, currentP.mUV, weight);
+	tempresult.mNormal = math::Lerp(lastP.mNormal, currentP.mNormal, weight);
 
 	return tempresult;
 }

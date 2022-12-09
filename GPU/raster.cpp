@@ -134,6 +134,8 @@ void Raster::InterpolantLine(const VsOutPoint& startPoint, const VsOutPoint& end
 	targetPoint.mColor = math::Lerp(startPoint.mColor, endPoint.mColor, weight);
 	//uv属性差值
 	targetPoint.mUV = math::Lerp(startPoint.mUV, endPoint.mUV, weight);
+	//法线属性插值
+	targetPoint.mNormal = math::Lerp(startPoint.mNormal, endPoint.mNormal, weight);
 }
 
 void Raster::InterpolantTriangle(const VsOutPoint& p1, const VsOutPoint& p2, const VsOutPoint& p3, VsOutPoint& tp)
@@ -160,6 +162,8 @@ void Raster::InterpolantTriangle(const VsOutPoint& p1, const VsOutPoint& p2, con
 
 	//最后根据这个权重值差值计算出中间点的颜色属性
 	tp.mColor = math::Lerp(p1.mColor,p2.mColor,p3.mColor,weight1,weight2,weight3);
+	//最后根据这个权重值差值计算出中间点的法线属性
+	tp.mNormal = math::Lerp(p1.mNormal, p2.mNormal, p3.mNormal, weight1, weight2, weight3);
 	//最后根据这个权重值差值计算出中间点的UV属性
 	tp.mUV = math::Lerp(p1.mUV, p2.mUV, p3.mUV, weight1, weight2, weight3);
 	//1/w的属性差值
