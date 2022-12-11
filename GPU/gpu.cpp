@@ -437,7 +437,7 @@ void ZGPU::TexImage2D(const uint32_t& width, const uint32_t& height, void* data)
 	tex->SetBufferData(width, height, data);
 }
 
-void ZGPU::TexParameter(const uint32_t& param, const uint32_t& calue)
+void ZGPU::SetTexParameter(const uint32_t& param, const uint32_t& calue)
 {
 	if (mCurrentTexture == 0)return;
 	

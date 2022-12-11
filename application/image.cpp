@@ -1,3 +1,4 @@
+#include "image.h"
 #define STB_IMAGE_IMPLEMENTATION	//预处理器会修改头文件,让其只包含相关的函数定义源码
 #include "stb_image.h"
 #include "image.h"
@@ -34,6 +35,24 @@ ZImage* ZImage::CreateZImage(const std::string & imgPath)
 	ZImage* tImg = new ZImage(imgWidth, imgHeight, (ZRGBA*)bits);
 	stbi_image_free(bits);	//释放stb所占用的内存
 	return tImg;
+}
+
+ZImage* ZImage::CreateZImageFromMemory(std::string path, unsigned char* dataIn, uint32_t widthIn, uint32_t heightIn)
+{
+	int picType = 0;
+	int width{ 0 }, height{ 0 };
+	uint32_t dataInSize = 0;
+	if (!heightIn)dataInSize = widthIn;
+	else dataInSize = widthIn * heightIn;
+	unsigned char* bits = stbi_load_from_memory(dataIn, dataInSize, &width, &height, &picType, STBI_rgb_alpha);
+	//交换RGB成BGR
+	for (int i = 0; i < width * height * 4; i++) {
+		byte tmp = bits[i];
+		bits[i] = bits[i + 2];
+		bits[i + 2] = tmp;
+	}
+	ZImage* image = new ZImage(width, height, (ZRGBA*)bits);
+	return image;
 }
 
 void ZImage::DestroyZImage(ZImage* zimage)

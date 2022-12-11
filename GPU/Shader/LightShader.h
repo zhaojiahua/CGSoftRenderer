@@ -17,7 +17,7 @@ public:
 	math::Mat4f mPerspectiveMatrix;
 
 	uint32_t mDiffuseTexture{ 0 };		//默认的一张漫反射贴图
-	DirectionLight mDirectionLight;		//默认一束平行光 
+	DirectionLight* mDirectionLight;		//默认一束平行光 
 	math::vec3f mEnvLight{ 0.1,0.1,0.1 };	//环境光默认暗淡的白色光
 
 };

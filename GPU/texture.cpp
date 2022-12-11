@@ -91,7 +91,8 @@ math::vec4f ZTexture::GetColor(float u, float v)
 	tempResult.X = static_cast<float>(tempColor.zR) / 255.0f;
 	tempResult.Y = static_cast<float>(tempColor.zG) / 255.0f;
 	tempResult.Z = static_cast<float>(tempColor.zB) / 255.0f;
-	tempResult.W = static_cast<float>(tempColor.zA) / 255.0f;
+	if (mTransparency == TEXTURE_TRANSPARENCY)	tempResult.W = static_cast<float>(tempColor.zA) / 255.0f;
+	else tempResult.W = 1.0f;
 
 	return tempResult;
 }
@@ -108,6 +109,9 @@ void ZTexture::SetParameter(const uint32_t& type, const uint32_t& value)
 		break;
 	case TEXTURE_WRAP_V:
 		mWrapV = value;
+		break;
+	case TEXTURE_TRANSPARENCYORNOT:
+		mTransparency = value;
 		break;
 	default:
 		break;

@@ -62,9 +62,13 @@ struct ZRGBA
 #define TEXTURE_FILTER 0		//设置纹理采样的方式
 #define TEXTURE_WRAP_U 1		//设置纹理U向的wrap方式
 #define TEXTURE_WRAP_V 2		//设置纹理V向的wrap方式
+#define TEXTURE_TRANSPARENCYORNOT 3		//设置纹理采样是否读取透明通道
 
 #define TEXTURE_FILTER_NEAREST 0	//nearest图片采样方法
 #define TEXTURE_FILTER_LINEAR 1	//双线性插值图片采样方法
+
+#define TEXTURE_NOTTRANSPARENCY 0		//不读取透明通道
+#define TEXTURE_TRANSPARENCY 1		//读取透明通道
 
 #define TEXTURE_WRAP_REPEAT 0
 #define TEXTURE_WRAP_MIRROR 1

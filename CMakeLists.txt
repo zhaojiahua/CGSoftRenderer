@@ -7,9 +7,17 @@ project(ComputeGraphic)
 #工程支持的C++版本
 set(CMAKE_CXX_STANDARD 17)
 
-#将assets文件夹里的内容拷贝到运行目录下
-file(GLOB copyResource "./assets")
+#将assets等文件夹里的内容拷贝到运行目录下
+file(GLOB copyResource "./assets" "./ThirdParty/bin/assimp/assimp-vc143-mtd.dll")
 file(COPY ${copyResource} DESTINATION ${CMAKE_BINARY_DIR})
+
+#指定include和静态库路径
+include_directories(
+	SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/include
+)
+link_directories(
+	SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/lib/assimp
+)
 
 #将Functions文件夹纳入编译系统
 add_subdirectory(Functions)
@@ -31,6 +39,7 @@ add_executable(softRenderer "Main.cpp" "global/base.cpp")
 add_executable(testMath "mathTest.cpp")
 add_executable(TestTextrue "textrueTest.cpp" "global/base.cpp")
 add_executable(TestCamera "cameraTest.cpp" "global/base.cpp")
+add_executable(TestModelImport "modelImportTest.cpp" "global/base.cpp")
 
 #将application.lib GPU.lib链入softRenderer
 target_link_libraries(softRenderer applicationlib GPUlib mathlib Functions)
@@ -40,3 +49,6 @@ target_link_libraries(TestTextrue applicationlib GPUlib mathlib Functions)
 
 #将application.lib GPU.lib链入TestCamera
 target_link_libraries(TestCamera applicationlib GPUlib mathlib Functions)
+
+#将application.lib GPU.lib assimp-vc143.lib链入TestModelImport
+target_link_libraries(TestModelImport applicationlib GPUlib mathlib Functions assimp-vc143-mtd.lib)

@@ -453,4 +453,5 @@ namespace math {
 	T Clamp(const T& invalue, const T& min, const T& max) {
 		return invalue < min ? min : (max < invalue ? max : invalue);
 	}
+
 }

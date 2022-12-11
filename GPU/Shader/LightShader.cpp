@@ -26,7 +26,7 @@ void LightShader::FragmentShader(const VsOutPoint& inVspoints, FsOutPoint& outPo
 
 	math::vec4f diffuseColor;
 	auto normal = math::normalize(inVspoints.mNormal);
-	auto lightDirection = math::normalize(mDirectionLight.GetLightDirection());
+	auto lightDirection = math::normalize(mDirectionLight->GetLightDirection());
 	float cosTheta = math::dot(normal, -lightDirection);
 	cosTheta = math::Clamp(cosTheta, 0.0f, 1.0f);
 
@@ -36,7 +36,7 @@ void LightShader::FragmentShader(const VsOutPoint& inVspoints, FsOutPoint& outPo
 	math::vec4f texColor;
 	if (texture) { texColor = texture->GetColor(inVspoints.mUV.X, inVspoints.mUV.Y); }
 
-	diffuseColor = texColor * cosTheta * math::vec4f(mDirectionLight.GetLightColor(), 1.0f);
+	diffuseColor = texColor * cosTheta * math::vec4f(mDirectionLight->GetLightColor(), 1.0f);
 
 	math::vec4f envColor;
 	envColor = texColor * math::vec4f(mEnvLight, 1.0f);

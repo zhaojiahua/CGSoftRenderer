@@ -106,8 +106,8 @@ namespace math {
 			else if (index == 1) return Y;
 			return Z;
 		}
-		ZVector3D<T> operator=(const ZVector3D<T>& inV) {
-			X = inV.X; Y = inV.Y; Z = inV.Z;
+		ZVector3D<T> operator=(const ZVector2D<T>& inV) {
+			X = inV.X; Y = inV.Y;
 			return *this;
 		}
 		ZVector3D<T> operator=(const ZVector4D<T>& inV) {

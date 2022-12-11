@@ -11,6 +11,7 @@ class ZTexture
 	uint32_t mFilter{ TEXTURE_FILTER_LINEAR };	//默认bilinear采样纹理
 	uint32_t mWrapU{ TEXTURE_WRAP_REPEAT };	//U向默认重复采样
 	uint32_t mWrapV{ TEXTURE_WRAP_REPEAT };	//V向默认重复采样
+	uint32_t mTransparency{ TEXTURE_TRANSPARENCY };	//采样纹理的时候默认读取透明通道
 
 public:
 	ZTexture();

@@ -102,7 +102,7 @@ public:
 	void DeleteTexture(const uint32_t& textureID);
 	void BindTexture(const uint32_t& textureID);
 	void TexImage2D(const uint32_t& width, const uint32_t& height, void* data);
-	void TexParameter(const uint32_t& param, const uint32_t& calue);
+	void SetTexParameter(const uint32_t& param, const uint32_t& calue);
 
 
 private:

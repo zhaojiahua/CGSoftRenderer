@@ -32,9 +32,9 @@ void Prepare() {
 	g_texture = Sgl->GenerateTexture();
 	Sgl->BindTexture(g_texture);
 	Sgl->TexImage2D(g_image->mWidth, g_image->mHeight, g_image->mData);
-	Sgl->TexParameter(TEXTURE_FILTER, TEXTURE_FILTER_LINEAR);
-	Sgl->TexParameter(TEXTURE_WRAP_U, TEXTURE_WRAP_REPEAT);
-	Sgl->TexParameter(TEXTURE_WRAP_V, TEXTURE_WRAP_REPEAT);
+	Sgl->SetTexParameter(TEXTURE_FILTER, TEXTURE_FILTER_LINEAR);
+	Sgl->SetTexParameter(TEXTURE_WRAP_U, TEXTURE_WRAP_REPEAT);
+	Sgl->SetTexParameter(TEXTURE_WRAP_V, TEXTURE_WRAP_REPEAT);
 	Sgl->BindTexture(0);
 
 	g_perspectiveMat = math::Perspective(60.0f, (float)ZApp->GetWidth() / (float)ZApp->GetHeight(), 0.1f, 100.0f);

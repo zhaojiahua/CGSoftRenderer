@@ -20,10 +20,17 @@ math::vec4f ShaderBase::GetVector(const std::map<uint32_t, BindingDescription>& 
 
 ZRGBA ShaderBase::VectorToRGBA(const math::vec4f& inv)
 {
+	//防止颜色越界
+	math::vec4f tempV;
+	tempV.X = math::Clamp(inv.X, 0.0f, 1.0f);
+	tempV.Y = math::Clamp(inv.Y, 0.0f, 1.0f);
+	tempV.Z = math::Clamp(inv.Z, 0.0f, 1.0f);
+	tempV.W = math::Clamp(inv.W, 0.0f, 1.0f);
+
 	ZRGBA tempResult;
-	tempResult.zR = static_cast<uint32_t>(inv.X * 255);
-	tempResult.zG = static_cast<uint32_t>(inv.Y*255);
-	tempResult.zB = static_cast<uint32_t>(inv.Z*255);
-	tempResult.zA = static_cast<uint32_t>(inv.W*255);
+	tempResult.zR = static_cast<uint32_t>(tempV.X * 255);
+	tempResult.zG = static_cast<uint32_t>(tempV.Y*255);
+	tempResult.zB = static_cast<uint32_t>(tempV.Z*255);
+	tempResult.zA = static_cast<uint32_t>(tempV.W*255);
 	return tempResult;
 }

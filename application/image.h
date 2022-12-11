@@ -16,6 +16,8 @@ public:
 	ZRGBA* mData{ nullptr };	//存储ZRGBA类型颜色的内存区域地址
 
 	static ZImage* CreateZImage(const std::string& imgPath);
+	//从内存里读取数据创建ZImage
+	static ZImage* CreateZImageFromMemory(std::string path, unsigned char* dataIn, uint32_t widthIn, uint32_t heightIn);
 	static void DestroyZImage(ZImage* zimage);
 
 };

@@ -18,7 +18,7 @@ class ZCamera
 	math::vec3f mPosition{ 0.0f,0.0f,0.0f };	//相机的当前世界空间坐标位置(默认在原点)
 	math::vec3f mFront{ 0.0f,0.0f,-1.0f };	//相机当前的朝向(默认朝向世界Z轴的负方向)
 
-	float mMoveSpeed{ 0.01f };	//相机的移动速度
+	float mMoveSpeed{ 0.05f };	//相机的移动速度
 	float mSensitivity{ 0.1f };	//相机的旋转灵敏度
 
 	float mPitch{ 0.0f };	//相机的Pitch值
