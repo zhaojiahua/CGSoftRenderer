@@ -353,7 +353,7 @@ namespace math {
 	//透视矩阵
 	template<typename T>
 	ZMatrix4X4<T> Perspective(T fovy, T aspect, T n, T f) {
-		T tanHalfFovy = std::tan(0.01745329251994329 * (fovy * 0.5f));
+		T const tanHalfFovy = std::tan(DEGTORAD(fovy / static_cast<T>(2)));
 
 		ZMatrix4X4<T> result(static_cast<T>(0));
 		result.Set(0, 0, static_cast<T>(1) / (aspect * tanHalfFovy));

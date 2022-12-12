@@ -124,11 +124,11 @@ namespace math {
 			inV.X * m[3] + inV.Y * m[7] + inV.Z * m[11] + inV.W * m[15]
 			);
 		}
-		T Get(const uint8_t& row, const uint8_t& col) const {
+		T Get(const uint32_t& row, const uint32_t& col) const {
 			assert(row < 4 && col < 4);
 			return m[col * 4 + row];
 		}
-		void Set(const uint8_t& row, const uint8_t& col, T t) {
+		void Set(const uint32_t& row, const uint32_t& col, T t) {
 			assert(row < 4 && col < 4);
 			m[col * 4 + row] = t;
 		}

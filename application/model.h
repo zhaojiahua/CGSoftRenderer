@@ -13,6 +13,12 @@ struct ZVertex
 	math::vec3f position;
 	math::vec3f normal;
 	math::vec2f texCoords;
+	void print() {
+		position.print();
+		normal.print();
+		texCoords.print();
+		std::cout << "-----------------------" << std::endl;
+	}
 };
 
 class ZMesh;

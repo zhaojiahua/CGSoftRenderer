@@ -33,7 +33,7 @@ void LightShader::FragmentShader(const VsOutPoint& inVspoints, FsOutPoint& outPo
 	auto iter = textures.find(mDiffuseTexture); 
 	ZTexture* texture{ nullptr };
 	if (iter != textures.end())	texture = iter->second;
-	math::vec4f texColor;
+	math::vec4f texColor = { 1.0f,1.0f,1.0f,1.0f };
 	if (texture) { texColor = texture->GetColor(inVspoints.mUV.X, inVspoints.mUV.Y); }
 
 	diffuseColor = texColor * cosTheta * math::vec4f(mDirectionLight->GetLightColor(), 1.0f);

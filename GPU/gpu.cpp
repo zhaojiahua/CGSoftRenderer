@@ -111,7 +111,7 @@ void ZGPU::Clear()
 {
 	//并不是清除FrameBuffer,而是给FrameBuffer填充背景色
 	size_t pixelCount = mFrameBuffer->mHeight * mFrameBuffer->mWidth;
-	std::fill_n(mFrameBuffer->mColorBuffer, pixelCount, ZRGBA(20, 20, 15, 15));
+	std::fill_n(mFrameBuffer->mColorBuffer, pixelCount, ZRGBA(150, 140, 150, 255));
 	std::fill_n(mFrameBuffer->mDepthBuffer, pixelCount, 1.0f);
 }
 
@@ -279,6 +279,7 @@ void ZGPU::UseShaderProgram(ShaderBase* inShader)
 void ZGPU::DrawElement(const uint32_t& drawMode, const uint32_t& first, const uint32_t& count)
 {
 	if (currentVAO == 0 || mShader == nullptr || count == 0) return;
+
 	auto vao_iter = mVAOMap.find(currentVAO);
 	if (vao_iter == mVAOMap.end()) {
 		std::cerr << "current VAO is not valid" << std::endl;
@@ -312,7 +313,7 @@ void ZGPU::DrawElement(const uint32_t& drawMode, const uint32_t& first, const ui
 	for (auto& pt : clipOutputs) {
 		PerspectiveDivision(pt);
 	}
-	
+
 	//在NDC空间进行背面剔除工作
 	std::vector<VsOutPoint> cullFaceOutputs = clipOutputs;
 	if (drawMode == DRAW_TRIANGLES && mEnableCullFace) {

@@ -12,6 +12,8 @@
 //相机类
 class ZCamera
 {
+	int tempi = 0;
+
 	math::Mat4f mPerspectiveMatrix;	//相机的透视矩阵
 	math::Mat4f mViewMatrix;	//相机的视图变换矩阵
 	math::vec3f mTop{ 0.0f,1.0f,0.0f };	//相机的默认天空方向(天空方向的在正上方)

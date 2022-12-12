@@ -97,11 +97,11 @@ void Raster::RasterizeTriangle(std::vector<VsOutPoint>& outps, const VsOutPoint&
 	int32_t xmax = std::max(p1.mPosition.X, std::max(p2.mPosition.X, p3.mPosition.X));
 	int32_t ymax = std::max(p1.mPosition.Y, std::max(p2.mPosition.Y, p3.mPosition.Y));
 	//然后遍历这个矩形内的所有像素点
-	for (int32_t tx = xmin; tx < xmax; ++tx) {
-		for (int32_t ty = ymin; ty < ymax; ++ty) {
-			math::vec2i tv1(p1.mPosition.X - tx, p1.mPosition.Y - ty);
-			math::vec2i tv2(p2.mPosition.X - tx, p2.mPosition.Y - ty);
-			math::vec2i tv3(p3.mPosition.X - tx, p3.mPosition.Y - ty);
+	for (int32_t tx = xmin; tx <= xmax; ++tx) {
+		for (int32_t ty = ymin; ty <= ymax; ++ty) {
+			math::vec2f tv1(p1.mPosition.X - tx, p1.mPosition.Y - ty);
+			math::vec2f tv2(p2.mPosition.X - tx, p2.mPosition.Y - ty);
+			math::vec2f tv3(p3.mPosition.X - tx, p3.mPosition.Y - ty);
 
 			float crossresult1 = math::cross(tv1, tv2);
 			float crossresult2 = math::cross(tv2, tv3);
@@ -115,6 +115,7 @@ void Raster::RasterizeTriangle(std::vector<VsOutPoint>& outps, const VsOutPoint&
 				tempPoint.mPosition.X = tx;
 				tempPoint.mPosition.Y = ty;
 				InterpolantTriangle(p1, p2, p3, tempPoint);
+
 				outps.push_back(tempPoint);
 			}
 		}
@@ -142,23 +143,25 @@ void Raster::InterpolantTriangle(const VsOutPoint& p1, const VsOutPoint& p2, con
 {
 	//三角形重心差值法
 	//首先求出这个三角形的面积
-	math::vec2i p1p2(p2.mPosition.X - p1.mPosition.X, p2.mPosition.Y - p1.mPosition.Y);
-	math::vec2i p1p3(p3.mPosition.X - p1.mPosition.X, p3.mPosition.Y - p1.mPosition.Y);
-	int32_t tri_area = std::abs(math::cross(p1p2, p1p3));	//三角形面积的2倍(都是整形数据的运算)
+	math::vec2f p1p2(p2.mPosition.X - p1.mPosition.X, p2.mPosition.Y - p1.mPosition.Y);
+	math::vec2f p1p3(p3.mPosition.X - p1.mPosition.X, p3.mPosition.Y - p1.mPosition.Y);
+	float tri_area = std::abs(math::cross(p1p2, p1p3));	//三角形面积的2倍(都是整形数据的运算)
 
 	//再求出三个小三角形面积
-	math::vec2i tpp1(p1.mPosition.X - tp.mPosition.X, p1.mPosition.Y - tp.mPosition.Y);
-	math::vec2i tpp2(p2.mPosition.X - tp.mPosition.X, p2.mPosition.Y - tp.mPosition.Y);
-	math::vec2i tpp3(p3.mPosition.X - tp.mPosition.X, p3.mPosition.Y - tp.mPosition.Y);
+	math::vec2f tpp1(p1.mPosition.X - tp.mPosition.X, p1.mPosition.Y - tp.mPosition.Y);
+	math::vec2f tpp2(p2.mPosition.X - tp.mPosition.X, p2.mPosition.Y - tp.mPosition.Y);
+	math::vec2f tpp3(p3.mPosition.X - tp.mPosition.X, p3.mPosition.Y - tp.mPosition.Y);
 
-	int32_t tri_area1 = std::abs(math::cross(tpp2, tpp3));
-	int32_t tri_area2 = std::abs(math::cross(tpp1, tpp3));
+	float tri_area1 = std::abs(math::cross(tpp2, tpp3));
+	float tri_area2 = std::abs(math::cross(tpp1, tpp3));
+	float tri_area3 = std::abs(math::cross(tpp1, tpp2));
 	//int32_t tri_area3 = std::abs(math::cross(tpp1, tpp2));
 
 	//根据三角面积比例计算出三个点的权重值(涉及到除法的要引入浮点数据运算)
-	float weight1 = static_cast<float>(tri_area1) / tri_area;
-	float weight2 = static_cast<float>(tri_area2) / tri_area;
-	float weight3 = 1.0f - weight1 - weight2;
+	float weight1 = tri_area != 0 ? tri_area1 / tri_area : 1.0f;
+	float weight2 = tri_area != 0 ? tri_area2 / tri_area : 0.0f;
+	float weight3 = tri_area != 0 ? tri_area3 / tri_area : 0.0f;
+	
 
 	//最后根据这个权重值差值计算出中间点的颜色属性
 	tp.mColor = math::Lerp(p1.mColor,p2.mColor,p3.mColor,weight1,weight2,weight3);

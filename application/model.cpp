@@ -74,11 +74,11 @@ void ZModel::Read(const std::string& path)
 	//读取数据
 	Assimp::Importer importer;
 	const aiScene* currentScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+	mRootMesh = new ZMesh({}, {}, 0, math::Mat4f());//一个空节点作为所有Mesh的父节点
 	if (!currentScene || currentScene->mFlags& AI_SCENE_FLAGS_INCOMPLETE || !currentScene->mRootNode) {
 		std::cout << "read model failed!" << std::endl;
 		return;
 	}
-	mRootMesh = new ZMesh({}, {}, 0, math::Mat4f());//一个空节点作为所有Mesh的父节点
 	ProcessNode(mRootMesh, currentScene->mRootNode, currentScene);
 }
 
@@ -144,8 +144,8 @@ ZMesh* ZModel::ProcessMesh(aiMesh* inaimesh, const aiScene* inScene)
 		if (inaimesh->mTextureCoords[0])//如果有纹理坐标(每个Mesh可能会有多套UV坐标)
 		{
 			math::vec2f tempVec;
-			tempVec.X = inaimesh->mTextureCoords[0]->x;
-			tempVec.Y = inaimesh->mTextureCoords[0]->y;
+			tempVec.X = inaimesh->mTextureCoords[0][i].x;
+			tempVec.Y = inaimesh->mTextureCoords[0][i].y;
 			tempVex.texCoords = tempVec;
 		}
 		else tempVex.texCoords = math::vec2f(0.0f, 0.0f);

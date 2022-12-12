@@ -42,7 +42,7 @@ ATOM ZApplication::ZRegisterWindowClass(HINSTANCE hInstance)
 	wndClass.hInstance = hInstance;
 	wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);//应用程序图标,即任务栏的大图标
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);//鼠标图标
-	wndClass.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);//窗口背景色
+	wndClass.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);//窗口背景色
 	wndClass.lpszMenuName = NULL;
 	wndClass.lpszClassName= mWinClassName;//窗口类名
 	wndClass.hIconSm = LoadIcon(NULL, IDI_WINLOGO);//窗口标题图标

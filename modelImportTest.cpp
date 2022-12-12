@@ -15,7 +15,6 @@
 
 #pragma comment(linker,"/subsystem:console /entry:wWinMainCRTStartup")
 
-
 ZCamera* g_camera = nullptr;
 LightShader* g_shader;
 DirectionLight* g_light;
@@ -23,18 +22,8 @@ math::vec3f g_envLight;
 
 ZModel* g_model = nullptr;
 
-float angle = 0.0f;
-void Transform() {
-	angle += 0.02f;
-	auto rotateM = math::Rotate(math::Mat4f(), angle, { 0.0f,1.0f,0.0f });
-	auto tranformM = math::Translate(math::Mat4f(), 0.0f, 0.0f, -5.0f);
-	auto modelM = tranformM * rotateM;
-	modelM = math::Scale(modelM, 0.1f, 0.1f, 0.1f);
-	g_model->SetModelMatrix(modelM);
-}
-
 void Prepare() {
-	g_camera = new ZCamera(60.0f, (float)ZApp->GetWidth() / (float)ZApp->GetHeight(), 0.1f, 200.0f, { 0.0,1.0,0.0 });
+	g_camera = new ZCamera(60.0f, (float)ZApp->GetWidth() / (float)ZApp->GetHeight(), 0.1f, 1000.0f, { 0.0f,1.0f,0.0f });
 	ZApp->SetCamera(g_camera);
 
 	g_shader = new LightShader();
@@ -49,8 +38,21 @@ void Prepare() {
 	Sgl->SetCullFace(BACK_FACE);
 	
 	g_model = new ZModel();
-	g_model->Read("assets/modelsData/dinosaur/source/RampagingT-Rex.glb");
+	//g_model->Read("assets/modelsData/testBox/testBox2.obj");
+	g_model->Read("assets/modelsData/bag/backpack.obj");
+	//g_model->Read("assets/modelsData/bag/box.obj");
+	//g_model->Read("assets/modelsData/dinosaur/source/RampagingT-Rex.glb");
 	
+}
+
+float angle = 0.0f;
+void Transform() {
+	angle -= 0.02f;
+	auto rotateM = math::Rotate(math::Mat4f(), angle, { 0.0f,1.0f,0.0f });
+	auto tranformM = math::Translate(math::Mat4f(), 0.0f, 0.0f, -5.0f);
+	auto modelM = tranformM * rotateM;
+	modelM = math::Scale(modelM, 0.1f, 0.1f, 0.1f);
+	g_model->SetModelMatrix(modelM);
 }
 
 void Render() {
@@ -70,7 +72,7 @@ int APIENTRY wWinMain(
 	_In_ LPWSTR lpCmdLine,
 	_In_ int nCmdShow)
 {
-	if (!ZApp->InitZApplication(hInstance, 800, 600))return -1;
+	if (!ZApp->InitZApplication(hInstance, 1200, 900))return -1;
 	Sgl->InitSurface(ZApp->GetWidth(), ZApp->GetHeight(), ZApp->GetCanvasBuffer());
 	Prepare();
 	bool alive = true;

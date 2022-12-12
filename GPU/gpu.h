@@ -18,6 +18,8 @@ class  GPU
 */
 class ZGPU
 {
+	int tempi = 0;
+
 	static ZGPU* mZGPUInstance;
 	FrameBuffer* mFrameBuffer{ nullptr };
 	ZImage* textrue{ nullptr };

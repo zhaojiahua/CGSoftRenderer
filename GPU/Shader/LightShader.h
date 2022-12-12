@@ -5,6 +5,7 @@
 
 class LightShader : public ShaderBase
 {
+	int tempi = 0;
 public:
 	LightShader();
 	~LightShader();
